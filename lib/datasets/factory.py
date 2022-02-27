@@ -26,7 +26,7 @@ for year in ['2007', '2012']:
     __sets[name] = (lambda split=split, year=year: pascal_voc(split, year))
 
 for year in ['2007', '2012']:
-  for split in ['train_s', 'train_t', 'train_all', 'test_s', 'test_t','test_all']:
+  for split in ['train_s', 'train_t', 'train_all', 'test_s', 'test_t','test_all','val_t']:
     name = 'cityscape_{}_{}'.format(year, split)
     __sets[name] = (lambda split=split, year=year: cityscape(split, year))
 

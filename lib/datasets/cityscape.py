@@ -60,9 +60,9 @@ class cityscape(imdb):
                         'person',
                         'bus',
                         'truck',
-                        'rider',
                         'bike',
                         'motor',
+                        'rider',
                         'train') 
 
 
