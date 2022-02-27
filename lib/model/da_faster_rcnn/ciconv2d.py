@@ -26,7 +26,7 @@ def gaussian_basis_filters(scale, gpu, k=3):
     filtersize = torch.ceil(k*std+0.5)
     x = torch.arange(start=-filtersize.item(), end=filtersize.item()+1)
     if gpu is not None: x = x.cuda(gpu); std = std.cuda(gpu)
-    x = torch.meshgrid([x,x])
+    x = torch.meshgrid(x,x)
 
     # Calculate Gaussian filter base
     # Only exponent part of Gaussian function since it is normalized anyway
