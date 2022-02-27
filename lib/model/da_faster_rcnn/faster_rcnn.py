@@ -18,7 +18,7 @@ from model.da_faster_rcnn.DA import _InstanceDA
 import time
 import pdb
 from model.utils.net_utils import _smooth_l1_loss, _crop_pool_layer, _affine_grid_gen, _affine_theta
-from ciconv2d import CIConv2d
+from models.da_faster_rcnn.ciconv2d import CIConv2d
 
 class _fasterRCNN(nn.Module):
     """ faster RCNN """
