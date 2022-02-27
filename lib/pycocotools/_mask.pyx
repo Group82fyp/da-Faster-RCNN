@@ -182,7 +182,7 @@ def iou( dt, gt, pyiscrowd ):
             elif isrle:
                 objs = _frString(objs)
             else:
-                raise Exception('list input can be bounding box (Nx4) or RLEs ([RLE])')
+                raise Exception('list input can be +bounding box (Nx4) or RLEs ([RLE])')
         else:
             raise Exception('unrecognized type.  The following type: RLEs (rle), np.ndarray (box), and list (box) are supported.')
         return objs

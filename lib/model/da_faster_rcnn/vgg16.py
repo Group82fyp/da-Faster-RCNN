@@ -14,11 +14,13 @@ from torch.autograd import Variable
 import math
 import torchvision.models as models
 from model.da_faster_rcnn.faster_rcnn import _fasterRCNN
+#from ciconv2d import CIConv2d
 import pdb
+
 
 class vgg16(_fasterRCNN):
   def __init__(self, classes, pretrained=False, class_agnostic=False):
-    self.model_path = 'data/vgg16_caffe.pth'
+    self.model_path = './data/ztc/detectionModel/vgg16_caffe.pth'
     self.dout_base_model = 512
     self.pretrained = pretrained
     self.class_agnostic = class_agnostic
@@ -27,6 +29,7 @@ class vgg16(_fasterRCNN):
 
   def _init_modules(self):
     vgg = models.vgg16()
+    torch.backends.cudnn.enabled = False
     if self.pretrained:
         print("Loading pretrained weights from %s" %(self.model_path))
         state_dict = torch.load(self.model_path)
@@ -36,7 +39,7 @@ class vgg16(_fasterRCNN):
 
     # not using the last maxpool layer
     self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
-
+    print(self.RCNN_base)
     # Fix the layers before conv3:
     for layer in range(10):
       for p in self.RCNN_base[layer].parameters(): p.requires_grad = False

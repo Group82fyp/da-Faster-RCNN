@@ -268,7 +268,7 @@ __C.EPS = 1e-14
 __C.ROOT_DIR = osp.abspath(osp.join(osp.dirname(__file__), '..', '..', '..'))
 
 # Data directory
-__C.DATA_DIR = osp.abspath('/home/jiaxi/da-faster-rcnn-PyTorch/')
+__C.DATA_DIR = osp.abspath(osp.join(__C.ROOT_DIR, 'data'))
 
 # Name (or path to) the matlab executable
 __C.MATLAB = 'matlab'
@@ -373,6 +373,7 @@ def cfg_from_file(filename):
   """Load a config file and merge it into the default options."""
   import yaml
   with open(filename, 'r') as f:
+    print(filename)
     yaml_cfg = edict(yaml.load(f))
 
   _merge_a_into_b(yaml_cfg, __C)

@@ -110,7 +110,7 @@ class _ProposalLayer(nn.Module):
         # proposals = clip_boxes_batch(proposals, im_info, batch_size)
 
         # assign the score to 0 if it's non keep.
-        keep = self._filter_boxes(proposals, min_size * im_info[:, 2])
+        # keep = self._filter_boxes(proposals, min_size * im_info[:, 2])
 
         # trim keep index to make it euqal over batch
         # keep_idx = torch.cat(tuple(keep_idx), 0)

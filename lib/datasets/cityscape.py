@@ -48,11 +48,6 @@ class cityscape(imdb):
         self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
 
 
-        """self._classes = ('__background__',  # always index 0
-                         'person', 'rider', 'car',
-                         'truck', 'bus', 'train',
-                         'motorcycle', 'bicycle')"""
-
         self._classes = ('__background__',  # always index 0
                         'traffic light',
                         'traffic sign',
@@ -63,7 +58,8 @@ class cityscape(imdb):
                         'rider',
                         'bike',
                         'motor',
-                        'train') 
+                        'train'
+                        ) 
 
 
         self._class_to_ind = dict(zip(self.classes, xrange(self.num_classes)))
@@ -118,7 +114,7 @@ class cityscape(imdb):
         """
         # Example path to image set file:
         # self._devkit_path + /VOCdevkit2007/VOC2007/ImageSets/Main/val.txt
-        image_set_file = os.path.join(self._devkit_path,'VOC2007','ImageSets', 'Main',
+        image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
                                       self._image_set + '.txt')
         assert os.path.exists(image_set_file), \
             'Path does not exist: {}'.format(image_set_file)
@@ -256,10 +252,10 @@ class cityscape(imdb):
         for ix, obj in enumerate(objs):
             bbox = obj.find('bndbox')
             # Make pixel indexes 0-based
-            x1 = float(bbox.find('xmin').text) 
-            y1 = float(bbox.find('ymin').text) 
-            x2 = float(bbox.find('xmax').text) 
-            y2 = float(bbox.find('ymax').text) 
+            x1 = float(bbox.find('xmin').text)
+            y1 = float(bbox.find('ymin').text)
+            x2 = float(bbox.find('xmax').text)
+            y2 = float(bbox.find('ymax').text)
 
             diffc = obj.find('difficult')
             difficult = 0 if diffc == None else int(diffc.text)

@@ -18,6 +18,7 @@ from model.da_faster_rcnn.DA import _InstanceDA
 import time
 import pdb
 from model.utils.net_utils import _smooth_l1_loss, _crop_pool_layer, _affine_grid_gen, _affine_theta
+from ciconv2d import CIConv2d
 
 class _fasterRCNN(nn.Module):
     """ faster RCNN """
@@ -29,7 +30,7 @@ class _fasterRCNN(nn.Module):
         # loss
         self.RCNN_loss_cls = 0
         self.RCNN_loss_bbox = 0
-
+        self.ciconv = CIConv2d('W', k=3, scale=0.0)
         # define rpn
         self.RCNN_rpn = _RPN(self.dout_base_model)
         self.RCNN_proposal_target = _ProposalTargetLayer(self.n_classes)
@@ -42,7 +43,6 @@ class _fasterRCNN(nn.Module):
         self.RCNN_imageDA = _ImageDA(self.dout_base_model)
         self.RCNN_instanceDA = _InstanceDA()
         self.consistency_loss = torch.nn.MSELoss(size_average=False)
-
     def forward(self, im_data, im_info, gt_boxes, num_boxes, need_backprop,
                 tgt_im_data, tgt_im_info, tgt_gt_boxes, tgt_num_boxes, tgt_need_backprop):
 
@@ -53,11 +53,11 @@ class _fasterRCNN(nn.Module):
         gt_boxes = gt_boxes.data
         num_boxes = num_boxes.data
         need_backprop=need_backprop.data
-
+        im_data = self.ciconv(im_data)
 
         # feed image data to base model to obtain base feature map
         base_feat = self.RCNN_base(im_data)
-        #print(base_feat)
+
 
 
         # feed base feature map tp RPN to obtain rois
@@ -180,15 +180,13 @@ class _fasterRCNN(nn.Module):
         tgt_DA_ins_loss_cls = 0
 
         base_score, base_label = self.RCNN_imageDA(base_feat, need_backprop)
-        #print(base_score)
+
         # Image DA
         base_prob = F.log_softmax(base_score, dim=1)
         DA_img_loss_cls = F.nll_loss(base_prob, base_label)
-        #print(pooled_feat[0][0])
+        
         instance_sigmoid, same_size_label = self.RCNN_instanceDA(pooled_feat, need_backprop)
         instance_loss = nn.BCELoss()
-        #print(instance_sigmoid[0])
-        #print('Next')
         DA_ins_loss_cls = instance_loss(instance_sigmoid, same_size_label)
 
         #consistency_prob = torch.max(F.softmax(base_score, dim=1),dim=1)[0]
@@ -198,7 +196,7 @@ class _fasterRCNN(nn.Module):
 
         DA_cst_loss=self.consistency_loss(instance_sigmoid,consistency_prob.detach())
 
-        """  ************** target loss ****************  """
+        """  ************** taget loss ****************  """
 
         tgt_base_score, tgt_base_label = \
             self.RCNN_imageDA(tgt_base_feat, tgt_need_backprop)
