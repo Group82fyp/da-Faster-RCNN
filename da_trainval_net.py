@@ -374,7 +374,11 @@ if __name__ == '__main__':
 
     for step in range(iters_per_epoch):
       data = next(data_iter)
-      tgt_data=next(tgt_data_iter)
+      try:
+          tgt_data = next(tgt_data_iter)
+      except:
+          tgt_data_iter = iter(t_dataloader)
+          tgt_data = next(tgt_data_iter)
 
       im_data.data.resize_(data[0].size()).copy_(data[0])  # change holder size
       im_info.data.resize_(data[1].size()).copy_(data[1])
