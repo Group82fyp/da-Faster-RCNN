@@ -14,6 +14,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 # ==================================
 # ======== Gaussian filter =========
@@ -26,7 +27,16 @@ def gaussian_basis_filters(scale, gpu, k=3):
     filtersize = torch.ceil(k*std+0.5)
     x = torch.arange(start=-filtersize.item(), end=filtersize.item()+1)
     if gpu is not None: x = x.cuda(gpu); std = std.cuda(gpu)
-    x = torch.meshgrid(x,x)
+    # x = torch.meshgrid(x, x)
+    print("printing x before np conversion")
+    print(x)
+
+    x_numpy = x.detach().numpy()
+    x = np.meshgrid(x_numpy,x_numpy)
+    x = torch.from_numpy(np.transpose(x))
+    print("printing x after mesh")
+    print(x)
+
 
     # Calculate Gaussian filter base
     # Only exponent part of Gaussian function since it is normalized anyway
