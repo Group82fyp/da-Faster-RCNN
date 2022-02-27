@@ -33,7 +33,7 @@ def gaussian_basis_filters(scale, gpu, k=3):
 
     x_numpy = x.cpu().numpy()
     x, x_ = np.meshgrid(x_numpy,x_numpy)
-    x = (torch.from_numpy(x_), torch.from_numpy(x))
+    x = torch.from_numpy(x_), torch.from_numpy(x)
     x.cuda()
     print("printing x after mesh")
     print(x)
