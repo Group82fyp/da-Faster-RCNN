@@ -18,7 +18,7 @@ from model.da_faster_rcnn.DA import _InstanceDA
 import time
 import pdb
 from model.utils.net_utils import _smooth_l1_loss, _crop_pool_layer, _affine_grid_gen, _affine_theta
-from models.da_faster_rcnn.ciconv2d import CIConv2d
+from model.da_faster_rcnn.ciconv2d import CIConv2d
 
 class _fasterRCNN(nn.Module):
     """ faster RCNN """
@@ -31,7 +31,7 @@ class _fasterRCNN(nn.Module):
         self.RCNN_loss_cls = 0
         self.RCNN_loss_bbox = 0
 
-        self.ciconv = CIConv2d(invariant=invariant)
+        self.ciconv = CIConv2d(invariant='W')
         # define rpn
         self.RCNN_rpn = _RPN(self.dout_base_model)
         self.RCNN_proposal_target = _ProposalTargetLayer(self.n_classes)
