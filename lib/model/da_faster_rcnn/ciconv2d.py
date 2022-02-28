@@ -23,7 +23,7 @@ import numpy as np
 def gaussian_basis_filters(scale, gpu, k=3):
     # print("Scale", scale)
     # print("gpu", gpu)
-    std = torch.exp(torch.mul(scale,np.ln(2)))
+    std = torch.exp(torch.mul(scale,np.log(2)))
     print(std)
     # std = torch.pow(2,scale)
 
