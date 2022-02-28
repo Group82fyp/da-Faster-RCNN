@@ -23,8 +23,11 @@ import numpy as np
 def gaussian_basis_filters(scale, gpu, k=3):
     print("Scale", scale)
     print("gpu", gpu)
+    std = 1
+    for i in scale:
+        std = std * 2
 
-    std = torch.pow(2,scale)
+    # std = torch.pow(2,scale)
 
     # Define the basis vector for the current scale
     filtersize = torch.ceil(k*std+0.5)
