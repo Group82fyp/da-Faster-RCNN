@@ -61,6 +61,9 @@ class _fasterRCNN(nn.Module):
         print("im_data,size()")
         print(im_data.size())
         im_data = im_data.repeat(1,3,1,1)
+        print("im_data.size after repeat")
+        print(im_data.size())
+
         # feed image data to base model to obtain base feature map
         base_feat = self.RCNN_base(im_data)
         #print(base_feat)
