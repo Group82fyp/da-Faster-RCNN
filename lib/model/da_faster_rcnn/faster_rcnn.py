@@ -58,7 +58,7 @@ class _fasterRCNN(nn.Module):
         need_backprop=need_backprop.data
 
         im_data = self.ciconv(im_data)
-        # im_data = torch.stack([im_data, im_data, im_data], dim=0)
+        im_data = torch.stack([im_data, im_data, im_data], dim=2)
         # feed image data to base model to obtain base feature map
         base_feat = self.RCNN_base(im_data)
         #print(base_feat)
