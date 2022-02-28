@@ -49,8 +49,8 @@ class _fasterRCNN(nn.Module):
                 tgt_im_data, tgt_im_info, tgt_gt_boxes, tgt_num_boxes, tgt_need_backprop):
 
         assert need_backprop.detach()==1 and tgt_need_backprop.detach()==0
-        print("im_data_shape")
-        print(im_data.shape)
+        # print("im_data_shape")
+        # print(im_data.shape)
         batch_size = im_data.size(0)
         im_info = im_info.data     #(size1,size2, image ratio(new image / source image) )
         gt_boxes = gt_boxes.data
@@ -58,11 +58,11 @@ class _fasterRCNN(nn.Module):
         need_backprop=need_backprop.data
 
         im_data = self.ciconv(im_data)
-        print("im_data,size()")
-        print(im_data.size())
+        # print("im_data,size()")
+        # print(im_data.size())
         im_data = im_data.repeat(1,3,1,1)
-        print("im_data.size after repeat")
-        print(im_data.size())
+        # print("im_data.size after repeat")
+        # print(im_data.size())
 
         # feed image data to base model to obtain base feature map
         base_feat = self.RCNN_base(im_data)

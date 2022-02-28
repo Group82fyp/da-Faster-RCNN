@@ -21,9 +21,10 @@ import numpy as np
 # ==================================
 
 def gaussian_basis_filters(scale, gpu, k=3):
-    print("Scale", scale)
-    print("gpu", gpu)
-    std = torch.exp(torch.mul(scale,np.log(2)))
+    # print("Scale", scale)
+    # print("gpu", gpu)
+    std = torch.exp(torch.mul(scale,np.ln(2)))
+    print(std)
     # std = torch.pow(2,scale)
 
     # Define the basis vector for the current scale
@@ -31,15 +32,15 @@ def gaussian_basis_filters(scale, gpu, k=3):
     x = torch.arange(start=-filtersize.item(), end=filtersize.item()+1)
     if gpu is not None: x = x.cuda(gpu); std = std.cuda(gpu)
     # x = torch.meshgrid(x, x)
-    print("printing x before np conversion")
-    print(x)
+    # print("printing x before np conversion")
+    # print(x)
 
     x_numpy = x.cpu().numpy()
     x, x_ = np.meshgrid(x_numpy,x_numpy)
     x = (torch.from_numpy(x_)).to("cuda:0"), (torch.from_numpy(x)).to("cuda:0")
-
-    print("printing x after mesh")
-    print(x)
+    #
+    # print("printing x after mesh")
+    # print(x)
 
 
 
