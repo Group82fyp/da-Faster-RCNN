@@ -21,6 +21,9 @@ import numpy as np
 # ==================================
 
 def gaussian_basis_filters(scale, gpu, k=3):
+    print("Scale", scale)
+    print("gpu", gpu)
+
     std = torch.pow(2,scale)
 
     # Define the basis vector for the current scale
