@@ -38,7 +38,8 @@ class _fasterRCNN(nn.Module):
 
     def forward(self, im_data, im_info, gt_boxes, num_boxes):
         batch_size = im_data.size(0)
-
+        print("im_data_shape, size")
+        print(im_data.shape, ",", im_data.size())
         im_info = im_info.data     #(size1,size2, image ratio(new image / source image) )
         gt_boxes = gt_boxes.data
         num_boxes = num_boxes.data
