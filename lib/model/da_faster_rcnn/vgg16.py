@@ -15,7 +15,7 @@ import math
 import torchvision.models as models
 from model.da_faster_rcnn.faster_rcnn import _fasterRCNN
 import pdb
-from ciconv2d import CIConv2d
+from model.da_faster_rcnn.ciconv2d import CIConv2d
 
 class vgg16(_fasterRCNN):
   def __init__(self, classes, pretrained=False, class_agnostic=False):
