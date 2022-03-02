@@ -15,6 +15,7 @@ import math
 import torchvision.models as models
 from model.da_faster_rcnn.faster_rcnn import _fasterRCNN
 import pdb
+from ciconv2d import CIConv2d
 
 class vgg16(_fasterRCNN):
   def __init__(self, classes, pretrained=False, class_agnostic=False):
@@ -35,12 +36,15 @@ class vgg16(_fasterRCNN):
     vgg.classifier = nn.Sequential(*list(vgg.classifier._modules.values())[:-1])
 
     # not using the last maxpool layer
+
     self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
-    self.RCNN_base[0] = nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+    self.preprocessing[0] = CIConv2d('W')
+    self.preprocessing[1] = nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+    self.RCNN_base[0] = self.preprocessing
     # Fix the layers before conv3:
     for layer in range(10):
       print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
-    for layer in range(10):
+    for layer in range(1,10):
       # print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
       for p in self.RCNN_base[layer].parameters(): p.requires_grad = False
 
