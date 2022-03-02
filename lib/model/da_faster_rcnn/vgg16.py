@@ -40,8 +40,13 @@ class vgg16(_fasterRCNN):
     # not using the last maxpool layer
 
     self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
+
+    # Create a new layer to process CiConv and replaced the 3 channel input to 1 channel
     preprocessing = nn.Sequential(CIConv2d('W'), nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False))
+
+    # Reassigning our new layer into the original RCNN.base
     self.RCNN_base[0] = preprocessing
+    
     # Fix the layers before conv3:
     for layer in range(10):
       print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
