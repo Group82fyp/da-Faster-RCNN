@@ -43,6 +43,9 @@ class vgg16(_fasterRCNN):
 
     # Create a new layer to process CiConv and replaced the 3 channel input to 1 channel
     preprocessing = nn.Sequential(CIConv2d('W'), nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False))
+    for p in preprocessing[1].parameters(): p.requires_grad = False
+    print("locking layer1")
+    print(preprocessing[1])
 
     # Reassigning our new layer into the original RCNN.base
     self.RCNN_base[0] = preprocessing
