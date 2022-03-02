@@ -59,8 +59,8 @@ class _fasterRCNN(nn.Module):
 
         im_data = self.ciconv(im_data)
 
-        # print("im_data,size()")
-        # print(im_data.size())
+        print("im_data,size() after ciconv")
+        print(im_data.size())
         # im_data = im_data.repeat(1,3,1,1)
         # print("im_data.size after repeat")
         # print(im_data.size())
