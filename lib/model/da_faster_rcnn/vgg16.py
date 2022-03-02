@@ -36,10 +36,10 @@ class vgg16(_fasterRCNN):
 
     # not using the last maxpool layer
     self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
-    self.RCNN_base[-1] = nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+    self.RCNN_base[0] = nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
     # Fix the layers before conv3:
     for layer in range(10):
-      print("printing layer: ", layer-1, ", printing name: ", self.RCNN_base[layer])
+      print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
     for layer in range(10):
       # print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
       for p in self.RCNN_base[layer].parameters(): p.requires_grad = False
