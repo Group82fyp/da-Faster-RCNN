@@ -49,8 +49,8 @@ class _fasterRCNN(nn.Module):
                 tgt_im_data, tgt_im_info, tgt_gt_boxes, tgt_num_boxes, tgt_need_backprop):
 
         assert need_backprop.detach()==1 and tgt_need_backprop.detach()==0
-        print("im_data_shape")
-        print(im_data.shape)
+        # print("im_data_shape")
+        # print(im_data.shape)
         batch_size = im_data.size(0)
         im_info = im_info.data     #(size1,size2, image ratio(new image / source image) )
         gt_boxes = gt_boxes.data
