@@ -165,4 +165,7 @@ class CIConv2d(nn.Module):
         inv_out = self.inv_function(E,Ex,Ey,El,Elx,Ely,Ell,Ellx,Elly)
         inv_out = F.instance_norm(torch.log(inv_out+eps))
 
+        print("inv_out,size() after ciconv")
+        print(inv_out.size())
+        inv_out = inv_out.repeat(1,3,1,1)
         return inv_out
