@@ -43,15 +43,15 @@ class vgg16(_fasterRCNN):
     preprocessing = nn.Sequential(CIConv2d('W'), nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False))
     self.RCNN_base[0] = preprocessing
     # Fix the layers before conv3:
-    for layer in range(10):
-      print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
+    # for layer in range(10):
+    #   print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
     for layer in range(1,10):
       # print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
       for p in self.RCNN_base[layer].parameters(): p.requires_grad = False
 
     # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
-    print("printing entire rcnnbase")
-    print(self.RCNN_base)
+    # print("printing entire rcnnbase")
+    # print(self.RCNN_base)
     self.RCNN_top = vgg.classifier
 
     # not using the last maxpool layer
