@@ -342,8 +342,6 @@ if __name__ == '__main__':
     load_name = os.path.join(output_dir,
                              'cityscape_consist_default.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
 
-
-
     checkpoint = torch.load(load_name)
     args.session = checkpoint['session']
     args.start_epoch = checkpoint['epoch']
@@ -351,8 +349,8 @@ if __name__ == '__main__':
 
     print("printing checkpoint['optimizer']")
     print(checkpoint['optimizer'])
-    optimizer.load_state_dict(checkpoint['optimizer'])
-    lr = optimizer.param_groups[0]['lr']
+    # optimizer.load_state_dict(checkpoint['optimizer'])
+    # lr = optimizer.param_groups[0]['lr']
     if 'pooling_mode' in checkpoint.keys():
       cfg.POOLING_MODE = checkpoint['pooling_mode']
     print("loaded checkpoint %s" % (load_name))
