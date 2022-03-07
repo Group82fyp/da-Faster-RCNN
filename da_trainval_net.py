@@ -331,8 +331,6 @@ if __name__ == '__main__':
 
   elif args.optimizer == "sgd":
     optimizer = torch.optim.SGD(params, momentum=cfg.TRAIN.MOMENTUM)
-    print('optimizer')
-    print(optimizer)
 
   if args.cuda:
       fasterRCNN.cuda()
