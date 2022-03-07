@@ -331,12 +331,11 @@ if __name__ == '__main__':
 
   elif args.optimizer == "sgd":
     optimizer = torch.optim.SGD(params, momentum=cfg.TRAIN.MOMENTUM)
-    print('optimizer')
-    print(optimizer)
+
 
   if args.cuda:
     fasterRCNN.cuda()
-      
+
   if args.resume:
     # load_name = os.path.join(output_dir,
     #   'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
