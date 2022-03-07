@@ -197,8 +197,8 @@ if __name__ == '__main__':
   print("fasterRCNN.state_dict()")
   print(fasterRCNN.state_dict())
 
-  # fasterRCNN.load_state_dict({k: v for k, v in checkpoint['model'].items() if k in fasterRCNN.state_dict()})
-  fasterRCNN.load_state_dict(checkpoint['model'])
+  fasterRCNN.load_state_dict({k: v for k, v in checkpoint['model'].items() if k in fasterRCNN.state_dict()})
+  # fasterRCNN.load_state_dict(checkpoint['model'])
   if 'pooling_mode' in checkpoint.keys():
     cfg.POOLING_MODE = checkpoint['pooling_mode']
 
