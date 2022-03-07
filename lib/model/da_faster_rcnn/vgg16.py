@@ -19,7 +19,8 @@ from model.da_faster_rcnn.ciconv2d import CIConv2d
 
 class vgg16(_fasterRCNN):
   def __init__(self, classes, pretrained=False, class_agnostic=False):
-    self.model_path = 'data/vgg16_caffe.pth'
+    # self.model_path = 'data/vgg16_caffe.pth'
+    self.model_path = "trained_model/vgg16/cityscape/cityscape_consist_default.pth"
     self.dout_base_model = 512
     self.pretrained = pretrained
     self.class_agnostic = class_agnostic
