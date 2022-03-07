@@ -343,13 +343,12 @@ if __name__ == '__main__':
                              'cityscape_consist_default.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
 
 
-    print("loading checkpoint %s" % (load_name))
+
     checkpoint = torch.load(load_name)
     args.session = checkpoint['session']
     args.start_epoch = checkpoint['epoch']
     fasterRCNN.load_state_dict(checkpoint['model'])
-    print("checkpoint['optimizer']")
-    print(checkpoint['optimizer'])
+
     optimizer.load_state_dict(checkpoint['optimizer'])
     lr = optimizer.param_groups[0]['lr']
     if 'pooling_mode' in checkpoint.keys():
