@@ -47,7 +47,7 @@ class vgg16(_fasterRCNN):
     # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
     # print("printing entire rcnnbase")
     # print(self.RCNN_base)
-    
+
     if self.pretrained:
         print("Loading pretrained weights from %s" %(self.model_path))
         state_dict = torch.load(self.model_path)
