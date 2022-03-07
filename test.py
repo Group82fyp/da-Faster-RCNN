@@ -192,10 +192,10 @@ if __name__ == '__main__':
   print("load checkpoint %s" % (load_name))
   checkpoint = torch.load(load_name)
 
-  print("printing checkpoint['model'].items()")
-  print(type(checkpoint['model'].items()))
-
-
+  # print("printing checkpoint['model'].items()")
+  # print(checkpoint['model'].items())
+  print("fasterRCNN.state_dict()")
+  print(fasterRCNN.state_dict())
 
   fasterRCNN.load_state_dict({k: v for k, v in checkpoint['model'].items() if k in fasterRCNN.state_dict()})
   #fasterRCNN.load_state_dict(checkpoint['model'])
