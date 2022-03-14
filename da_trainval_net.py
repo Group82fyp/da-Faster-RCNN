@@ -460,7 +460,7 @@ if __name__ == '__main__':
         start = time.time()
 
     if epoch==args.max_epochs:
-        save_name = os.path.join(output_dir, 'cityscape_consist_default.pth'.format(args.session, epoch, step))
+        save_name = os.path.join(output_dir, '0314replace1.pth'.format(args.session, epoch, step))
         save_checkpoint({
             'session': args.session,
             'epoch': epoch + 1,
