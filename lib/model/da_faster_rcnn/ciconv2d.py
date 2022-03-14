@@ -165,10 +165,10 @@ class CIConv2d(nn.Module):
         inv_out = self.inv_function(E,Ex,Ey,El,Elx,Ely,Ell,Ellx,Elly)
         inv_out = F.instance_norm(torch.log(inv_out+eps))
 
-        # Replacing R channel
+        # Replacing B channel
 
         im_data.detach()
         im_data = im_data.detach()
-        im_data[:, 0, :, :] = inv_out * 20
+        im_data[:, 2, :, :] = inv_out * 20
 
         return inv_out
