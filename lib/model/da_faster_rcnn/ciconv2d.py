@@ -167,8 +167,8 @@ class CIConv2d(nn.Module):
 
         # Replacing G channel
 
-        im_data.detach()
-        im_data = im_data.detach()
-        im_data[:, 1, :, :] = inv_out * 20
+        batch.detach()
+        batch = batch.detach()
+        batch[:, 1, :, :] = inv_out * 20
 
-        return inv_out
+        return batch
