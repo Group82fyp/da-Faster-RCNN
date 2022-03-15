@@ -61,7 +61,7 @@ class parsingNet(torch.nn.Module):
         self.cls = torch.nn.Sequential(
             torch.nn.Linear(1800, 2048),
             torch.nn.ReLU(),
-            torch.nn.Linear(2048, torch.tensor(int(self.total_dim)).cuda()),
+            torch.nn.Linear(2048, int(self.total_dim)),
         )
 
         self.pool = torch.nn.Conv2d(512,8,1) if backbone in ['34','18'] else torch.nn.Conv2d(2048,8,1)
