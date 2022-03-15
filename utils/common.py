@@ -1,5 +1,5 @@
 import os, argparse
-from utils.dist_utils import is_main_process, dist_print, DistSummaryWriter
+from utils.dist_utils import is_main_process, dist_print
 from utils.config import Config
 import torch
 import time
