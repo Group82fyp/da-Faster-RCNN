@@ -56,7 +56,8 @@ class parsingNet(torch.nn.Module):
                 # output : n, num_of_lanes+1, h, w
             )
             initialize_weights(self.aux_header2,self.aux_header3,self.aux_header4,self.aux_combine)
-
+        print("printing dim ")
+        print(self.total_dim)
         self.cls = torch.nn.Sequential(
             torch.nn.Linear(1800, 2048),
             torch.nn.ReLU(),
