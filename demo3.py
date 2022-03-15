@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     dist_print('start testing...')
 
-    test_img = '/home/SENSETIME/zouyanfeng/Documents/Ultra-Fast-Lane-Detection/1.png'
+    test_img = '/home/jiaxi/da-Faster-RCNN/1.png'
 
     net = parsingNet(pretrained = False, backbone='18' ,cls_dim = (griding_num+1,cls_num_per_lane,4),
                     use_aux=False).cuda() # we dont need auxiliary segmentation in testing
@@ -84,7 +84,8 @@ if __name__ == "__main__":
         colourno = colourno + 1
         if colourno > 4:
             colourno = 0
-    cv2.imshow("show", image)
+    cv2.imwrite("output.png", image)
+    # cv2.imshow("show", image)
     cv2.waitKey(50000)
 
         
