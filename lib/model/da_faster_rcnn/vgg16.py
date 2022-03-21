@@ -19,7 +19,8 @@ from model.da_faster_rcnn.ciconv2d import CIConv2d
 
 class vgg16(_fasterRCNN):
   def __init__(self, classes, pretrained=False, class_agnostic=False):
-    self.model_path = 'data/vgg16_caffe.pth'
+    # self.model_path = 'data/vgg16_caffe.pth'
+    self.model_path = '/trained_model/vgg16/cityscape/bdd100k_ciconv.pth'
     self.dout_base_model = 512
     self.pretrained = pretrained
     self.class_agnostic = class_agnostic
@@ -42,7 +43,7 @@ class vgg16(_fasterRCNN):
     #   print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
     for layer in range(1,10):
       # print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
-      for p in self.RCNN_base[layer].parameters(): p.requires_grad = False
+      for p in self.RCNN_base[layer].parameters(): p.requires_grad = True
 
     # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
     # print("printing entire rcnnbase")
