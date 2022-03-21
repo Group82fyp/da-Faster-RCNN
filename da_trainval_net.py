@@ -107,6 +107,11 @@ def parse_args():
 
 
 # set training session
+
+  parser.add_argument('--weights', dest='weights',
+                      help='weights_path',
+                      default='cityscape_consist_default.pth', type=str)
+
   parser.add_argument('--s', dest='session',
                       help='training session',
                       default=1, type=int)
@@ -334,13 +339,13 @@ if __name__ == '__main__':
 
   if args.cuda:
       fasterRCNN.cuda()
-
+  weights = args.weights
   if args.resume:
     # load_name = os.path.join(output_dir,
     #   'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
 
     load_name = os.path.join(output_dir,
-                             'cityscape_consist_default.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+                             weights.format(args.checksession, args.checkepoch, args.checkpoint))
 
     checkpoint = torch.load(load_name)
     args.session = checkpoint['session']
