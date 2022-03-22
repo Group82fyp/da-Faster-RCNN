@@ -1,0 +1,5 @@
+import torch
+
+base_model_path = './trained_model/vgg16/cityscape/bdd100k_ciconv.pth'
+state_dict = torch.load(self.model_path)
+print(state_dict)

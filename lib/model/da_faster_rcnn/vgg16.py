@@ -19,8 +19,8 @@ from model.da_faster_rcnn.ciconv2d import CIConv2d
 
 class vgg16(_fasterRCNN):
   def __init__(self, classes, pretrained=False, class_agnostic=False):
-    # self.model_path = 'data/vgg16_caffe.pth'
-    self.model_path = './trained_model/vgg16/cityscape/bdd100k_ciconv.pth'
+    self.model_path = 'data/vgg16_caffe.pth'
+    self.base_model_path = './trained_model/vgg16/cityscape/bdd100k_ciconv.pth'
     self.dout_base_model = 512
     self.pretrained = pretrained
     self.class_agnostic = class_agnostic
@@ -48,7 +48,9 @@ class vgg16(_fasterRCNN):
     # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
     # print("printing entire rcnnbase")
     # print(self.RCNN_base)
-
+    if self.pretrained:
+        print("Loading pretrained weights from %s" %(self.model_path))
+        base_state_dict = torch.load(self.base_model_path)
     if self.pretrained:
         print("Loading pretrained weights from %s" %(self.model_path))
         state_dict = torch.load(self.model_path)
