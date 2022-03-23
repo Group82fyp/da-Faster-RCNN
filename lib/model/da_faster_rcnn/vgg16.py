@@ -51,6 +51,7 @@ class vgg16(_fasterRCNN):
     if self.pretrained:
         print("Loading pretrained weights from %s" %(self.base_model_path))
         base_state_dict = torch.load(self.base_model_path)
+        base_state_dict = base_state_dict['model']
         self.RCNN_base.load_state_dict({k: v for k, v in base_state_dict.items() if k in vgg.state_dict()})
     if self.pretrained:
         print("Loading pretrained weights from %s" %(self.model_path))
