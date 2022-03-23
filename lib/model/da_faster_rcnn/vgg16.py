@@ -49,13 +49,13 @@ class vgg16(_fasterRCNN):
     # print("printing entire rcnnbase")
     # print(self.RCNN_base)
     if self.pretrained:
-        print("Loading pretrained weights from %s" %(self.model_path))
+        print("Loading pretrained weights from %s" %(self.base_model_path))
         base_state_dict = torch.load(self.base_model_path)
+        self.RCNN_base.load_state_dict({k: v for k, v in base_state_dict.items() if k in vgg.state_dict()})
     if self.pretrained:
         print("Loading pretrained weights from %s" %(self.model_path))
         state_dict = torch.load(self.model_path)
-        # vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()})
-        vgg.load_state_dict({k: v for k, v in state_dict.items() })
+        vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()})
 
     self.RCNN_top = vgg.classifier
 
