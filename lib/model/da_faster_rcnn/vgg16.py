@@ -36,16 +36,19 @@ class vgg16(_fasterRCNN):
 
     # not using the last maxpool layer
 
-    self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
+    # self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
     preprocessing = nn.Sequential(CIConv2d('W'), nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False))
     vgg.preprocessing[0] = preprocessing
+    self.RCNN_base = vgg.preprocessing
+
     # self.RCNN_base[0] = preprocessing
     # Fix the layers before conv3:
     # for layer in range(10):
     #   print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
+
     for layer in range(10):
       print("printing layer: ", layer, ", printing name: ", vgg.preprocessing[layer])
-      for p in vgg.preprocessing.parameters(): p.requires_grad = True
+      for p in self.RCNN_base[layer].parameters(): p.requires_grad = True
 
     # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
     # print("printing entire rcnnbase")
@@ -64,7 +67,7 @@ class vgg16(_fasterRCNN):
         state_dict = torch.load(self.model_path)
         vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()}, strict=False)
 
-    self.RCNN_base = vgg.preprocessing
+
     self.RCNN_top = vgg.classifier
 
     # not using the last maxpool layer
