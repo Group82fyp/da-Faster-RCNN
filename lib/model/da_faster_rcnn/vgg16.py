@@ -45,7 +45,7 @@ class vgg16(_fasterRCNN):
     #   print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
     for layer in range(10):
       print("printing layer: ", layer, ", printing name: ", vgg.preprocessing[layer])
-      for p in self.vgg.preprocessing.parameters(): p.requires_grad = True
+      for p in vgg.preprocessing.parameters(): p.requires_grad = True
 
     # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
     # print("printing entire rcnnbase")
@@ -63,7 +63,7 @@ class vgg16(_fasterRCNN):
         print("Loading pretrained weights from %s" %(self.model_path))
         state_dict = torch.load(self.model_path)
         vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()}, strict=False)
-        
+
     self.RCNN_base = vgg.preprocessing
     self.RCNN_top = vgg.classifier
 
