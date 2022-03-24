@@ -38,30 +38,31 @@ class vgg16(_fasterRCNN):
 
     self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
     preprocessing = nn.Sequential(CIConv2d('W'), nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False))
-    self.RCNN_base[0] = preprocessing
+    vgg.preprocessing[0] = preprocessing
+    # self.RCNN_base[0] = preprocessing
     # Fix the layers before conv3:
     # for layer in range(10):
     #   print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
     for layer in range(10):
-      print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
-      for p in self.RCNN_base[layer].parameters(): p.requires_grad = True
+      print("printing layer: ", layer, ", printing name: ", self.vgg.preprocessing[layer])
+      for p in self.vgg.preprocessing.parameters(): p.requires_grad = True
 
     # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
     # print("printing entire rcnnbase")
     # print(self.RCNN_base)
-    if self.pretrained:
-        print("Loading pretrained weights from %s" %(self.base_model_path))
-        base_state_dict = torch.load(self.base_model_path)
-        base_state_dict = base_state_dict['model']
-        print("printing kv")
-        print({k for k, v in base_state_dict.items() if k in self.RCNN_base.statedict()})
-        # self.RCNN_base.load_state_dict({k: v for k, v in base_state_dict.items() if k in self.RCNN_base.state_dict()})
-        self.RCNN_base.load_state_dict(base_state_dict, strict=False)
+    # if self.pretrained:
+    #     print("Loading pretrained weights from %s" %(self.base_model_path))
+    #     base_state_dict = torch.load(self.base_model_path)
+    #     base_state_dict = base_state_dict['model']
+    #     print("printing kv")
+    #     print({k for k, v in base_state_dict.items() if k in self.RCNN_base.statedict()})
+    #     # self.RCNN_base.load_state_dict({k: v for k, v in base_state_dict.items() if k in self.RCNN_base.state_dict()})
+    #     self.RCNN_base.load_state_dict(base_state_dict, strict=False)
 
     if self.pretrained:
         print("Loading pretrained weights from %s" %(self.model_path))
         state_dict = torch.load(self.model_path)
-        vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()})
+        vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()}, strict=False)
 
     self.RCNN_top = vgg.classifier
 
