@@ -473,8 +473,10 @@ if __name__ == '__main__':
         start = time.time()
 
     if epoch==args.max_epochs:
-        save_name_ = os.path.join(output_dir,'24_4_240.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
-        save_name = os.path.join(output_dir, save_name_)
+        # save_name_ = os.path.join(output_dir,'24_4_240.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+        save_name = os.path.join(output_dir,
+                                  '24_4_240.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+        # save_name = os.path.join(output_dir, save_name_)
         save_checkpoint({
             'session': args.session,
             'epoch': epoch + 1,
