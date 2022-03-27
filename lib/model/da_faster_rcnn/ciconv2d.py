@@ -169,6 +169,6 @@ class CIConv2d(nn.Module):
 
         batch.detach()
         batch = batch.detach()
-        batch[:, 0, :, :] = inv_out * 20
+        batch[:, 3, :, :] = inv_out * 20
 
         return batch

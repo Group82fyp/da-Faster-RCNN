@@ -459,8 +459,8 @@ if __name__ == '__main__':
         loss_temp = 0
         start = time.time()
 
-    if epoch==args.max_epochs:
-        save_name = os.path.join(output_dir, '0321replace0.pth'.format(args.session, epoch, step))
+    if epoch==args.max_epochs or epoch == 10 :
+        save_name = os.path.join(output_dir, '0427_4channel_gradient_False_', epoch, '-epoch.pth')
         save_checkpoint({
             'session': args.session,
             'epoch': epoch + 1,
