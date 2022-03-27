@@ -15,6 +15,8 @@ import math
 import torchvision.models as models
 from model.faster_rcnn.faster_rcnn import _fasterRCNN
 import pdb
+from model.da_faster_rcnn.ciconv2d import CIConv2d
+
 
 class vgg16(_fasterRCNN):
   def __init__(self, classes, pretrained=False, class_agnostic=False):
@@ -27,15 +29,21 @@ class vgg16(_fasterRCNN):
 
   def _init_modules(self):
     vgg = models.vgg16()
+    vgg.preprocessing = nn.Sequential(*list(vgg.features._modules.values())[:-1])
+    vgg.classifier = nn.Sequential(*list(vgg.classifier._modules.values())[:-1])
+
+    preprocessing = nn.Sequential(CIConv2d('W'),
+                                  nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False))
+    vgg.preprocessing[0] = preprocessing
+
+
     if self.pretrained:
         print("Loading pretrained weights from %s" %(self.model_path))
         state_dict = torch.load(self.model_path)
         vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()})
 
-    vgg.classifier = nn.Sequential(*list(vgg.classifier._modules.values())[:-1])
-
     # not using the last maxpool layer
-    self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
+    self.RCNN_base = vgg.preprocessing
 
     # Fix the layers before conv3:
     for layer in range(10):
