@@ -169,9 +169,10 @@ class CIConv2d(nn.Module):
         print("old batch size")
         print(batch.size())
         batch.resize_([1, 4, 600, 1067])
-        print("new batch size")
-        print(batch.size())
+
         batch = batch.detach()
         batch[:, 3, :, :] = inv_out * 20
+        print("new batch size")
+        print(batch.size())
 
         return batch

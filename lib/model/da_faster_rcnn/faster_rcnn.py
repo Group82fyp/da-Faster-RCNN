@@ -67,7 +67,7 @@ class _fasterRCNN(nn.Module):
 
         # feed image data to base model to obtain base feature map
         im_data = self.ciconv(im_data)
-        print(im_data.size())
+
         base_feat = self.RCNN_base(im_data)
         #print(base_feat)
 
@@ -147,7 +147,7 @@ class _fasterRCNN(nn.Module):
         tgt_need_backprop = tgt_need_backprop.data
 
         # feed image data to base model to obtain base feature map
-
+        print(tgt_im_data.size())
         tgt_base_feat = self.RCNN_base(tgt_im_data)
 
         # feed base feature map tp RPN to obtain rois
