@@ -168,6 +168,7 @@ class CIConv2d(nn.Module):
         # Replacing R channel
 
         batch.detach()
+        print(batch.size())
         batch = batch.detach()
         batch[:, 3, :, :] = inv_out * 20
 
