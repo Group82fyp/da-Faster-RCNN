@@ -166,8 +166,10 @@ class CIConv2d(nn.Module):
         inv_out = F.instance_norm(torch.log(inv_out+eps))
 
         # Replacing R channel
-
-        batch.detach()
+        print("old batch size")
+        print(batch.size())
+        batch.resize_([1, 4, 600, 1067])
+        print("new batch size")
         print(batch.size())
         batch = batch.detach()
         batch[:, 3, :, :] = inv_out * 20
