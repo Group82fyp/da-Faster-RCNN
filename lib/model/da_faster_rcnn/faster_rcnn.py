@@ -67,6 +67,7 @@ class _fasterRCNN(nn.Module):
 
         # feed image data to base model to obtain base feature map
         im_data = self.ciconv(im_data)
+        print(im_data.size())
         base_feat = self.RCNN_base(im_data)
         #print(base_feat)
 
