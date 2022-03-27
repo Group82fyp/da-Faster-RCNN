@@ -352,8 +352,8 @@ if __name__ == '__main__':
     args.start_epoch = checkpoint['epoch']
     fasterRCNN.load_state_dict(checkpoint['model'])
 
-    print("printing checkpoint['optimizer']")
-    print(checkpoint['optimizer'])
+    # print("printing checkpoint['optimizer']")
+    # print(checkpoint['optimizer'])
     # optimizer.load_state_dict(checkpoint['optimizer'])
     # lr = optimizer.param_groups[0]['lr']
     if 'pooling_mode' in checkpoint.keys():
@@ -475,7 +475,7 @@ if __name__ == '__main__':
     if epoch==args.max_epochs:
         # save_name_ = os.path.join(output_dir,'24_4_240.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
         save_name = os.path.join(output_dir,
-                                  '24_4_240.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+                                  '27_4_710_resume_from_single_channeltrue.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
         # save_name = os.path.join(output_dir, save_name_)
         save_checkpoint({
             'session': args.session,
