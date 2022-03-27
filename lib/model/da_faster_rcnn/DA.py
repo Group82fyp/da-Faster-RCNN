@@ -53,7 +53,8 @@ class _ImageDA(nn.Module):
 class _InstanceDA(nn.Module):
     def __init__(self):
         super(_InstanceDA,self).__init__()
-        self.dc_ip1 = nn.Linear(4096, 1024)
+        # self.dc_ip1 = nn.Linear(4096, 1024)
+        self.dc_ip1 = nn.Linear(1000, 256)
         self.dc_relu1 = nn.ReLU()
         self.dc_drop1 = nn.Dropout(p=0.5)
 
