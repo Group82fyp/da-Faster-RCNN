@@ -31,9 +31,15 @@ class vgg16(_fasterRCNN):
 
   def _init_modules(self):
     vgg = models.vgg16()
-    vgg.preprocessing = nn.Sequential(*list(vgg.features._modules.values())[:-1])
-    vgg.classifier = nn.Sequential(*list(vgg.classifier._modules.values())[:-1])
 
+    vgg.classifier = nn.Sequential(*list(vgg.classifier._modules.values())[:-1])
+    
+    if self.pretrained:
+        print("Loading pretrained weights from %s" %(self.model_path))
+        state_dict = torch.load(self.model_path)
+        vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()}, strict=False)
+
+    vgg.preprocessing = nn.Sequential(*list(vgg.features._modules.values())[:-1])
     # not using the last maxpool layer
 
     # self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
@@ -62,10 +68,7 @@ class vgg16(_fasterRCNN):
     #     # self.RCNN_base.load_state_dict({k: v for k, v in base_state_dict.items() if k in self.RCNN_base.state_dict()})
     #     self.RCNN_base.load_state_dict(base_state_dict, strict=False)
 
-    if self.pretrained:
-        print("Loading pretrained weights from %s" %(self.model_path))
-        state_dict = torch.load(self.model_path)
-        vgg.load_state_dict({k:v for k,v in state_dict.items() if k in vgg.state_dict()}, strict=False)
+
 
 
     self.RCNN_top = vgg.classifier

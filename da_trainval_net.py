@@ -37,6 +37,7 @@ from model.utils.net_utils import weights_normal_init, save_net, load_net, \
 
 from model.da_faster_rcnn.vgg16 import vgg16
 from model.da_faster_rcnn.resnet import resnet
+from val import get_ap
 
 #from model.da_faster_rcnn.vgg16 import vgg16
 #from model.da_faster_rcnn.resnet import resnet
@@ -58,7 +59,7 @@ def parse_args():
                       default=1, type=int)
   parser.add_argument('--epochs', dest='max_epochs',
                       help='number of epochs to train',
-                      default=20, type=int)
+                      default=50, type=int)
   parser.add_argument('--disp_interval', dest='disp_interval',
                       help='number of iterations to display',
                       default=100, type=int)
@@ -385,6 +386,8 @@ if __name__ == '__main__':
     data_iter = iter(s_dataloader)
     tgt_data_iter=iter(t_dataloader)
 
+    max_ap = 0
+
     for step in range(iters_per_epoch):
       data = next(data_iter)
       try:
@@ -472,20 +475,44 @@ if __name__ == '__main__':
         loss_temp = 0
         start = time.time()
 
-    if epoch==args.max_epochs:
-        # save_name_ = os.path.join(output_dir,'24_4_240.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
-        save_name = os.path.join(output_dir,
-                                  '24_4_240.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
-        # save_name = os.path.join(output_dir, save_name_)
-        save_checkpoint({
-            'session': args.session,
-            'epoch': epoch + 1,
-            'model': fasterRCNN.module.state_dict() if args.mGPUs else fasterRCNN.state_dict(),
-            'optimizer': optimizer.state_dict(),
-            'pooling_mode': cfg.POOLING_MODE,
-            'class_agnostic': args.class_agnostic,
-        }, save_name)
-        print('save model: {}'.format(save_name))
+    save_name = os.path.join(output_dir,'28_march_train_channel_grad_true_last_new.pth')
+    save_checkpoint({
+        'session': args.session,
+        'epoch': epoch + 1,
+        'model': fasterRCNN.module.state_dict() if args.mGPUs else fasterRCNN.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'pooling_mode': cfg.POOLING_MODE,
+        'class_agnostic': args.class_agnostic,
+    }, save_name)
+    new_ap = get_ap(save_name)
+    txt_path = '/home/jiaxi/da-Faster-RCNN/results.txt'
+
+    with open('readme.txt', 'w') as f:
+        f.writelines(str(time.time()) + '-epoch:' + str(epoch) + ' map:' + str(new_ap) + '\n')
+
+    best_name = os.path.join(output_dir,'28_march_train_channel_grad_true_new.pth')
+    if new_ap > max_ap:
+        try:
+            os.remove(best_name)
+        except:
+            pass
+        os.rename(save_name, best_name)
+    else:
+        os.remove(save_name)
+
+    # if epoch==args.max_epochs:
+    #     # save_name_ = os.path.join(output_dir,'24_4_240.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+    #     save_name = os.path.join(output_dir,'28_march_train_channel_grad_true_last.pth')
+    #     # save_name = os.path.join(output_dir, save_name_)
+    #     save_checkpoint({
+    #         'session': args.session,
+    #         'epoch': epoch + 1,
+    #         'model': fasterRCNN.module.state_dict() if args.mGPUs else fasterRCNN.state_dict(),
+    #         'optimizer': optimizer.state_dict(),
+    #         'pooling_mode': cfg.POOLING_MODE,
+    #         'class_agnostic': args.class_agnostic,
+    #     }, save_name)
+    #     print('save model: {}'.format(save_name))
 
   if args.use_tfboard:
     logger.close()
