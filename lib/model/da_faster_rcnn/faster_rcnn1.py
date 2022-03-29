@@ -12,26 +12,32 @@ from model.roi_pooling.modules.roi_pool import _RoIPooling
 from model.roi_crop.modules.roi_crop import _RoICrop
 from model.roi_align.modules.roi_align import RoIAlignAvg
 from model.rpn.proposal_target_layer_cascade import _ProposalTargetLayer
-
+from PIL import Image
 from model.da_faster_rcnn.DA import _ImageDA
 from model.da_faster_rcnn.DA import _InstanceDA
 import time
+import random
 import pdb
 from model.utils.net_utils import _smooth_l1_loss, _crop_pool_layer, _affine_grid_gen, _affine_theta
-from model.da_faster_rcnn.ciconv2d import CIConv2d
-
+from model.da_faster_rcnn.ciconv2d import CIConv2d 
 class _fasterRCNN(nn.Module):
     """ faster RCNN """
-    def __init__(self, classes, class_agnostic, mix=0.5):
+    def __init__(self, classes, class_agnostic,ciconv=False):
         super(_fasterRCNN, self).__init__()
         self.classes = classes
+#         self.ciconv = ciconv
+#         if self.ciconv:
+        print("enable init ciconv....................................................")
+        self.ciconv = CIConv2d('W', k=3, scale=0.0)
+        self.socketConv = nn.Conv2d(4, 3, kernel_size=3, stride=1, padding=1)
+        self.relu = nn.ReLU()
+
         self.n_classes = len(classes)
         self.class_agnostic = class_agnostic
         # loss
         self.RCNN_loss_cls = 0
         self.RCNN_loss_bbox = 0
-
-        self.ciconv = CIConv2d(invariant='W')
+        
         # define rpn
         self.RCNN_rpn = _RPN(self.dout_base_model)
         self.RCNN_proposal_target = _ProposalTargetLayer(self.n_classes)
@@ -44,38 +50,79 @@ class _fasterRCNN(nn.Module):
         self.RCNN_imageDA = _ImageDA(self.dout_base_model)
         self.RCNN_instanceDA = _InstanceDA()
         self.consistency_loss = torch.nn.MSELoss(size_average=False)
+        
+    def save_tensor_as_image(self, tensor, filename):
+        _min = torch.min(tensor)
+        _max = torch.max(tensor)
 
-        # Learnable parameters
-        self.mix = torch.nn.Parameter(torch.tensor([mix]), requires_grad=True)
+        tensor = (tensor - _min)/(_max - _min)
 
-    def combine_features(self, ciconv_base_feat, base_feat):
-        base_feat = self.mix.data * ciconv_base_feat + (1-self.mix.data) * base_feat
-        return base_feat
 
+        img = tensor[0].cpu().detach().numpy()
+        img = img.transpose((1, 2, 0))
+        img = (img * 255).astype(np.uint8)
+        img = Image.fromarray(img)
+        img.save(filename)
+        
+    def combine_two_images(self, img1, img2):
+
+        img_combine = img1+img2*100
+
+        _min = torch.min(img_combine)
+        _max = torch.max(img_combine)
+
+        img_combine = (img_combine - _min)/(_max - _min)
+        return img_combine
+    def merge_channel(im_data,im_data_edge):
+        im_data_edge = im_data_edge.unsqueeze(1)
+        im_data = im_data.unsqueeze(1)
+        im_data = torch.cat([im_data,im_data_edge],1)
+        print(im_data.size())
+        return im_data
+    
+    def add_two_images(self, img1, img2,filename):
+
+        img_combine = img1+img2*100
+
+        _min = torch.min(img_combine)
+        _max = torch.max(img_combine)
+
+        img_combine = (img_combine - _min)/(_max - _min)
+
+
+        img = img_combine[0].cpu().detach().numpy()
+        img = img.transpose((1, 2, 0))
+        img = (img * 255).astype(np.uint8)
+        img = Image.fromarray(img)
+        img.save(filename)
+        return img
+
+ 
     def forward(self, im_data, im_info, gt_boxes, num_boxes, need_backprop,
                 tgt_im_data, tgt_im_info, tgt_gt_boxes, tgt_num_boxes, tgt_need_backprop):
 
         assert need_backprop.detach()==1 and tgt_need_backprop.detach()==0
-        # print("im_data_shape")
-        # print(im_data.shape)
+
         batch_size = im_data.size(0)
+
         im_info = im_info.data     #(size1,size2, image ratio(new image / source image) )
         gt_boxes = gt_boxes.data
         num_boxes = num_boxes.data
         need_backprop=need_backprop.data
-
-        # Make sure scale does not explode: clamp to max abs value of 0.9 and min value of 0.1
-        # Clamps all the elements into the range min, max and return a resulting tensor
-        # torch.clamp(inp, min, max, out=None)
-        self.mix.data = torch.clamp(self.mix.data, min=0.1, max=0.9)
-
+        
+            #self.add_two_images(im_data, im_data_edge, "/home/jiawen/proj/da_frcnn/test_img_ciconv/combine.png")
+            #tensor_combine = torch.zeros(1, 4, 600, 1067).cuda()
+            #tensor_combine[:,0:3,:,:] = im_data
+            #tensor_combine[:,3,:,:] = im_data_edge
+            #im_data = self.socketConv(tensor_combine)
+            #im_data = self.relu(im_data)
+            #self.save_tensor_as_image(im_data, "/home/jiawen/proj/da_frcnn/test_img_ciconv/combine.png")
         # feed image data to base model to obtain base feature map
-        ciconv_base_feat = self.ciconv_RCNN_base(im_data)
         base_feat = self.RCNN_base(im_data)
+        #print("base_feat size:",base_feat.size())
 
-        # mix ciconv and base_feat
-        base_feat = self.combine_features(ciconv_base_feat, base_feat)
 
+        
 
         # feed base feature map tp RPN to obtain rois
         self.RCNN_rpn.train()
@@ -142,7 +189,93 @@ class _fasterRCNN(nn.Module):
 
         cls_prob = cls_prob.view(batch_size, rois.size(1), -1)
         bbox_pred = bbox_pred.view(batch_size, rois.size(1), -1)
+#         if self.ciconv :
+        #print("ciconv....................................................")
+        im_data_edge = self.ciconv(im_data) #1 channel
+        #3 channels ciconv
+        ciconv_output = im_data_edge.repeat(1,3,1,1)
 
+
+        ciconv_base_feat = self.RCNN_base(ciconv_output.cuda())
+        self.RCNN_rpn.train()
+        ciconv_rois, ciconv_rpn_loss_cls, ciconv_rpn_loss_bbox = self.RCNN_rpn(ciconv_base_feat, im_info, gt_boxes, num_boxes)
+        rpn_loss_cls += ciconv_rpn_loss_cls
+        rpn_loss_bbox += ciconv_rpn_loss_bbox
+
+        if self.training:
+            ciconv_roi_data = self.RCNN_proposal_target(
+                ciconv_rois, gt_boxes, num_boxes)
+            ciconv_rois, ciconv_rois_label, ciconv_rois_target, ciconv_rois_inside_ws, ciconv_rois_outside_ws = ciconv_roi_data
+
+            ciconv_rois_label = Variable(
+                ciconv_rois_label.view(-1).long())
+            ciconv_rois_target = Variable(
+                ciconv_rois_target.view(-1,
+                                            ciconv_rois_target.size(2)))
+            ciconv_rois_inside_ws = Variable(
+                ciconv_rois_inside_ws.view(
+                    -1, ciconv_rois_inside_ws.size(2)))
+            ciconv_rois_outside_ws = Variable(
+                ciconv_rois_outside_ws.view(
+                    -1, ciconv_rois_outside_ws.size(2)))
+        ciconv_rois = Variable(ciconv_rois)
+        if cfg.POOLING_MODE == 'crop':
+            # pdb.set_trace()
+            # pooled_feat_anchor = _crop_pool_layer(base_feat, rois.view(-1, 5))
+            grid_xy = _affine_grid_gen(rois.view(-1, 5),
+                                    base_feat.size()[2:], self.grid_size)
+            grid_yx = torch.stack(
+                [grid_xy.data[:, :, :, 1], grid_xy.data[:, :, :, 0]],
+                3).contiguous()
+            pooled_feat = self.RCNN_roi_crop(base_feat,
+                                            Variable(grid_yx).detach())
+            if cfg.CROP_RESIZE_WITH_MAX_POOL:
+                pooled_feat = F.max_pool2d(pooled_feat, 2, 2)
+        elif cfg.POOLING_MODE == 'align':
+            ciconv_pooled_feat = self.RCNN_roi_align(
+                ciconv_base_feat, ciconv_rois.view(-1, 5))
+
+
+        ciconv_pooled_feat = self._head_to_tail(ciconv_pooled_feat)
+
+    # compute bbox offset
+        ciconv_bbox_pred = self.RCNN_bbox_pred(ciconv_pooled_feat)
+        if self.training and not self.class_agnostic:
+            # select the corresponding columns according to roi labels
+            ciconv_bbox_pred_view = ciconv_bbox_pred.view(
+                ciconv_bbox_pred.size(0),
+                int(ciconv_bbox_pred.size(1) / 4), 4)
+            ciconv_bbox_pred_select = torch.gather(
+                ciconv_bbox_pred_view, 1,
+                ciconv_rois_label.view(ciconv_rois_label.size(0), 1,
+                                        1).expand(
+                                            ciconv_rois_label.size(0),
+                                            1, 4))
+            ciconv_bbox_pred = ciconv_bbox_pred_select.squeeze(1)
+
+        # compute object classification probability
+        ciconv_cls_score = self.RCNN_cls_score(ciconv_pooled_feat)
+        ciconv_cls_prob = F.softmax(ciconv_cls_score, 1)
+
+        if self.training:
+            # classification loss
+
+            ciconv_loss_cls = F.cross_entropy(ciconv_cls_score,
+                                            ciconv_rois_label)*0.2
+
+            RCNN_loss_cls +=ciconv_loss_cls
+#             print("ciconv_loss_cls ",ciconv_loss_cls)
+            # bounding box regression L1 loss
+            ciconv_loss_bbx = _smooth_l1_loss(ciconv_bbox_pred,
+                                            ciconv_rois_target,
+                                            ciconv_rois_inside_ws,
+                                            ciconv_rois_outside_ws)*0.2
+#             print("ciconv_loss_bbx ",ciconv_loss_bbx)
+            # print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")                                
+            # print("RCNN_loss_bbox",RCNN_loss_bbox)
+            RCNN_loss_bbox += ciconv_loss_bbx
+            # print("RCNN_loss_bbox",RCNN_loss_bbox)
+#             print("^^^^^^^^^^^^^^^^^^^^^^")  
         """ =================== for target =========================="""
 
         tgt_batch_size = tgt_im_data.size(0)
@@ -152,11 +285,7 @@ class _fasterRCNN(nn.Module):
         tgt_need_backprop = tgt_need_backprop.data
 
         # feed image data to base model to obtain base feature map
-        tgt_ciconv_base_feat = self.ciconv_RCNN_base(tgt_im_data)
         tgt_base_feat = self.RCNN_base(tgt_im_data)
-
-        # mix ciconv and base_feat
-        tgt_base_feat = self.combine_features(tgt_ciconv_base_feat, tgt_base_feat)
 
         # feed base feature map tp RPN to obtain rois
         self.RCNN_rpn.eval()
@@ -201,15 +330,13 @@ class _fasterRCNN(nn.Module):
         tgt_DA_ins_loss_cls = 0
 
         base_score, base_label = self.RCNN_imageDA(base_feat, need_backprop)
-        #print(base_score)
+
         # Image DA
         base_prob = F.log_softmax(base_score, dim=1)
         DA_img_loss_cls = F.nll_loss(base_prob, base_label)
-        #print(pooled_feat[0][0])
+
         instance_sigmoid, same_size_label = self.RCNN_instanceDA(pooled_feat, need_backprop)
         instance_loss = nn.BCELoss()
-        #print(instance_sigmoid[0])
-        #print('Next')
         DA_ins_loss_cls = instance_loss(instance_sigmoid, same_size_label)
 
         #consistency_prob = torch.max(F.softmax(base_score, dim=1),dim=1)[0]
@@ -219,7 +346,7 @@ class _fasterRCNN(nn.Module):
 
         DA_cst_loss=self.consistency_loss(instance_sigmoid,consistency_prob.detach())
 
-        """  ************** target loss ****************  """
+        """  ************** taget loss ****************  """
 
         tgt_base_score, tgt_base_label = \
             self.RCNN_imageDA(tgt_base_feat, tgt_need_backprop)
@@ -269,3 +396,5 @@ class _fasterRCNN(nn.Module):
     def create_architecture(self):
         self._init_modules()
         self._init_weights()
+
+
