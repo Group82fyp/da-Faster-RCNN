@@ -66,7 +66,7 @@ def get_ap(model):
 
     # initilize the network here.
 
-    fasterRCNN = vgg16(imdb.classes, pretrained=False, class_agnostic=args.class_agnostic)
+    fasterRCNN = vgg16(imdb.classes, pretrained=False, class_agnostic=None)
 
     fasterRCNN.create_architecture()
     checkpoint = torch.load(load_name)
