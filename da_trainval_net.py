@@ -6,6 +6,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from pathlib import Path
 
 import _init_paths
 import os
@@ -361,7 +362,7 @@ if __name__ == '__main__':
     logger = SummaryWriter("logs")
 
   max_ap = 0
-  txt_path = '/home/jiaxi/da-Faster-RCNN/ciconvbasefeat0330results.txt'
+  txt_path = Path('/home/jiaxi/da-Faster-RCNN/ciconvbasefeat0330results.txt')
 
   with txt_path.open(mode='w') as file:
 
@@ -477,7 +478,7 @@ if __name__ == '__main__':
         }, save_name)
 
         new_ap = get_ap(save_name)
-        
+
         file.write(str(time.time()) + '-epoch:' + str(epoch) + ' map:' + str(new_ap) + '\n')
 
 
