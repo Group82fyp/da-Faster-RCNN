@@ -38,6 +38,8 @@ from model.utils.net_utils import weights_normal_init, save_net, load_net, \
 from model.da_faster_rcnn.vgg16 import vgg16
 from model.da_faster_rcnn.resnet import resnet
 
+from val import get_ap
+
 #from model.da_faster_rcnn.vgg16 import vgg16
 #from model.da_faster_rcnn.resnet import resnet
 
@@ -358,6 +360,8 @@ if __name__ == '__main__':
     from tensorboardX import SummaryWriter
     logger = SummaryWriter("logs")
 
+  max_ap = 0
+
   for epoch in range(args.start_epoch, args.max_epochs + 1):
     # setting to train mode
 
@@ -459,8 +463,33 @@ if __name__ == '__main__':
         loss_temp = 0
         start = time.time()
 
+    save_name = os.path.join(output_dir, 'ciconv_base_0330_new.pth')
+    save_checkpoint({
+        'session': args.session,
+        'epoch': epoch + 1,
+        'model': fasterRCNN.module.state_dict() if args.mGPUs else fasterRCNN.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'pooling_mode': cfg.POOLING_MODE,
+        'class_agnostic': args.class_agnostic,
+    }, save_name)
+    new_ap = get_ap(save_name)
+    txt_path = '/home/jiaxi/da-Faster-RCNN/ciconvbasefeat0330results.txt'
+
+    with open('readme.txt', 'w') as f:
+        f.writelines(str(time.time()) + '-epoch:' + str(epoch) + ' map:' + str(new_ap) + '\n')
+
+    best_name = os.path.join(output_dir, 'ciconvbasefeat0330_best.pth')
+    if new_ap > max_ap:
+        try:
+            os.remove(best_name)
+        except:
+            pass
+        os.rename(save_name, best_name)
+    else:
+        os.remove(save_name)
+
     if epoch==args.max_epochs:
-        save_name = os.path.join(output_dir, 'ciconvbasefeat0330.pth'.format(args.session, epoch, step))
+        save_name = os.path.join(output_dir, 'ciconvbasefeat0330_last.pth'.format(args.session, epoch, step))
         save_checkpoint({
             'session': args.session,
             'epoch': epoch + 1,
