@@ -362,7 +362,7 @@ if __name__ == '__main__':
     logger = SummaryWriter("logs")
 
   max_ap = 0
-  txt_path = Path('/home/jiaxi/da-Faster-RCNN/ciconvBbasefeat0330results.txt')
+  txt_path = Path('/home/jiaxi/da-Faster-RCNN/ciconv2basefeat0330results.txt')
 
   with txt_path.open(mode='w') as file:
 
@@ -482,7 +482,7 @@ if __name__ == '__main__':
         file.write(str(time.time()) + '-epoch:' + str(epoch) + ' map:' + str(new_ap) + '\n')
 
 
-        best_name = os.path.join(output_dir, 'ciconv1basefeat0330_best.pth')
+        best_name = os.path.join(output_dir, 'ciconv2basefeat0330_best.pth')
         if new_ap > max_ap:
             try:
                 os.remove(best_name)
@@ -493,7 +493,7 @@ if __name__ == '__main__':
             os.remove(save_name)
 
         if epoch==args.max_epochs:
-            save_name = os.path.join(output_dir, 'ciconv1basefeat0330_last.pth'.format(args.session, epoch, step))
+            save_name = os.path.join(output_dir, 'ciconv2basefeat0330_last.pth'.format(args.session, epoch, step))
             save_checkpoint({
                 'session': args.session,
                 'epoch': epoch + 1,
