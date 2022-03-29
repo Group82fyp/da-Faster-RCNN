@@ -475,7 +475,7 @@ if __name__ == '__main__':
     new_ap = get_ap(save_name)
     txt_path = '/home/jiaxi/da-Faster-RCNN/ciconvbasefeat0330results.txt'
 
-    with open('readme.txt', 'w') as f:
+    with open(txt_path, 'w') as f:
         f.writelines(str(time.time()) + '-epoch:' + str(epoch) + ' map:' + str(new_ap) + '\n')
 
     best_name = os.path.join(output_dir, 'ciconvbasefeat0330_best.pth')
