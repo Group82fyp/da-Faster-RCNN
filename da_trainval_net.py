@@ -361,135 +361,112 @@ if __name__ == '__main__':
     logger = SummaryWriter("logs")
 
   max_ap = 0
+  txt_path = '/home/jiaxi/da-Faster-RCNN/ciconvbasefeat0330results.txt'
 
-  for epoch in range(args.start_epoch, args.max_epochs + 1):
-    # setting to train mode
+  with txt_path.open(mode='w') as file:
 
-    fasterRCNN.train()
-    loss_temp = 0
-    start = time.time()
+      for epoch in range(args.start_epoch, args.max_epochs + 1):
+        # setting to train mode
 
-    if epoch % (args.lr_decay_step + 1) == 0:
-        adjust_learning_rate(optimizer, args.lr_decay_gamma)
-        lr *= args.lr_decay_gamma
-
-    data_iter = iter(s_dataloader)
-    tgt_data_iter=iter(t_dataloader)
-
-    for step in range(iters_per_epoch):
-      data = next(data_iter)
-      try:
-          tgt_data = next(tgt_data_iter)
-      except:
-          tgt_data_iter = iter(t_dataloader)
-          tgt_data = next(tgt_data_iter)
-
-      im_data.data.resize_(data[0].size()).copy_(data[0])  # change holder size
-      im_info.data.resize_(data[1].size()).copy_(data[1])
-      gt_boxes.data.resize_(data[2].size()).copy_(data[2])
-      num_boxes.data.resize_(data[3].size()).copy_(data[3])
-      need_backprop.data.resize_(data[4].size()).copy_(data[4])
-      need_backprop[:]=1
-
-      tgt_im_data.data.resize_(tgt_data[0].size()).copy_(tgt_data[0])  # change holder size
-      tgt_im_info.data.resize_(tgt_data[1].size()).copy_(tgt_data[1])
-      tgt_gt_boxes.data.resize_(tgt_data[2].size()).copy_(tgt_data[2])
-      tgt_num_boxes.data.resize_(tgt_data[3].size()).copy_(tgt_data[3])
-      tgt_need_backprop.data.resize_(tgt_data[4].size()).copy_(tgt_data[4])
-
-      """   faster-rcnn loss + DA loss for source and   DA loss for target    """
-      fasterRCNN.zero_grad()
-      rois, cls_prob, bbox_pred, \
-      rpn_loss_cls, rpn_loss_box, \
-      RCNN_loss_cls, RCNN_loss_bbox, \
-      rois_label,DA_img_loss_cls,DA_ins_loss_cls,tgt_DA_img_loss_cls,tgt_DA_ins_loss_cls,\
-      DA_cst_loss,tgt_DA_cst_loss=\
-          fasterRCNN(im_data, im_info, gt_boxes, num_boxes,need_backprop,
-                     tgt_im_data, tgt_im_info, tgt_gt_boxes, tgt_num_boxes, tgt_need_backprop)
-
-
-
-      loss = rpn_loss_cls.mean() + rpn_loss_box.mean() \
-           + RCNN_loss_cls.mean() + RCNN_loss_bbox.mean()\
-             +args.lamda*(DA_img_loss_cls.mean()+DA_ins_loss_cls.mean()\
-             +tgt_DA_img_loss_cls.mean()+tgt_DA_ins_loss_cls.mean()+DA_cst_loss.mean()+tgt_DA_cst_loss.mean())
-      loss_temp += loss.item()
-
-      # backward
-      optimizer.zero_grad()
-      loss.backward()
-      if args.net == "vgg16":
-          clip_gradient(fasterRCNN, 10.)
-      optimizer.step()
-
-      if step % args.disp_interval == 0:
-        end = time.time()
-        if step > 0:
-          loss_temp /= (args.disp_interval + 1)
-
-        if args.mGPUs:
-          loss_rpn_cls = rpn_loss_cls.mean().item()
-          loss_rpn_box = rpn_loss_box.mean().item()
-          loss_rcnn_cls = RCNN_loss_cls.mean().item()
-          loss_rcnn_box = RCNN_loss_bbox.mean().item()
-          fg_cnt = torch.sum(rois_label.data.ne(0))
-          bg_cnt = rois_label.data.numel() - fg_cnt
-        else:
-          loss_rpn_cls = rpn_loss_cls.item()
-          loss_rpn_box = rpn_loss_box.item()
-          loss_rcnn_cls = RCNN_loss_cls.item()
-          loss_rcnn_box = RCNN_loss_bbox.item()
-          loss_DA_img_cls=args.lamda*(DA_img_loss_cls.item()+tgt_DA_img_loss_cls.item())/2
-          loss_DA_ins_cls = args.lamda * (DA_ins_loss_cls.item() + tgt_DA_ins_loss_cls.item()) / 2
-          loss_DA_cst = args.lamda * (DA_cst_loss.item() + tgt_DA_cst_loss.item()) / 2
-          fg_cnt = torch.sum(rois_label.data.ne(0))
-          bg_cnt = rois_label.data.numel() - fg_cnt
-
-        print("[session %d][epoch %2d][iter %4d/%4d] loss: %.4f, lr: %.2e" \
-                                % (args.session, epoch, step, iters_per_epoch, loss_temp, lr))
-        print("\t\t\tfg/bg=(%d/%d), time cost: %f" % (fg_cnt, bg_cnt, end-start))
-        print("\t\t\trpn_cls: %.4f, rpn_box: %.4f, rcnn_cls: %.4f, rcnn_box %.4f,\n\t\t\timg_loss %.4f,ins_loss %.4f,,cst_loss %.4f" \
-                      % (loss_rpn_cls, loss_rpn_box, loss_rcnn_cls, loss_rcnn_box,loss_DA_img_cls,loss_DA_ins_cls,loss_DA_cst))
-        if args.use_tfboard:
-          info = {
-            'loss': loss_temp,
-            'loss_rpn_cls': loss_rpn_cls,
-            'loss_rpn_box': loss_rpn_box,
-            'loss_rcnn_cls': loss_rcnn_cls,
-            'loss_rcnn_box': loss_rcnn_box
-          }
-          logger.add_scalars("logs_s_{}/losses".format(args.session), info, (epoch - 1) * iters_per_epoch + step)
-
+        fasterRCNN.train()
         loss_temp = 0
         start = time.time()
 
-    save_name = os.path.join(output_dir, 'ciconv_base_0330_new.pth')
-    save_checkpoint({
-        'session': args.session,
-        'epoch': epoch + 1,
-        'model': fasterRCNN.module.state_dict() if args.mGPUs else fasterRCNN.state_dict(),
-        'optimizer': optimizer.state_dict(),
-        'pooling_mode': cfg.POOLING_MODE,
-        'class_agnostic': args.class_agnostic,
-    }, save_name)
-    new_ap = get_ap(save_name)
-    txt_path = '/home/jiaxi/da-Faster-RCNN/ciconvbasefeat0330results.txt'
+        if epoch % (args.lr_decay_step + 1) == 0:
+            adjust_learning_rate(optimizer, args.lr_decay_gamma)
+            lr *= args.lr_decay_gamma
 
-    with open(txt_path, 'w') as f:
-        f.writelines(str(time.time()) + '-epoch:' + str(epoch) + ' map:' + str(new_ap) + '\n')
+        data_iter = iter(s_dataloader)
+        tgt_data_iter=iter(t_dataloader)
 
-    best_name = os.path.join(output_dir, 'ciconvbasefeat0330_best.pth')
-    if new_ap > max_ap:
-        try:
-            os.remove(best_name)
-        except:
-            pass
-        os.rename(save_name, best_name)
-    else:
-        os.remove(save_name)
+        for step in range(iters_per_epoch):
+          data = next(data_iter)
+          try:
+              tgt_data = next(tgt_data_iter)
+          except:
+              tgt_data_iter = iter(t_dataloader)
+              tgt_data = next(tgt_data_iter)
 
-    if epoch==args.max_epochs:
-        save_name = os.path.join(output_dir, 'ciconvbasefeat0330_last.pth'.format(args.session, epoch, step))
+          im_data.data.resize_(data[0].size()).copy_(data[0])  # change holder size
+          im_info.data.resize_(data[1].size()).copy_(data[1])
+          gt_boxes.data.resize_(data[2].size()).copy_(data[2])
+          num_boxes.data.resize_(data[3].size()).copy_(data[3])
+          need_backprop.data.resize_(data[4].size()).copy_(data[4])
+          need_backprop[:]=1
+
+          tgt_im_data.data.resize_(tgt_data[0].size()).copy_(tgt_data[0])  # change holder size
+          tgt_im_info.data.resize_(tgt_data[1].size()).copy_(tgt_data[1])
+          tgt_gt_boxes.data.resize_(tgt_data[2].size()).copy_(tgt_data[2])
+          tgt_num_boxes.data.resize_(tgt_data[3].size()).copy_(tgt_data[3])
+          tgt_need_backprop.data.resize_(tgt_data[4].size()).copy_(tgt_data[4])
+
+          """   faster-rcnn loss + DA loss for source and   DA loss for target    """
+          fasterRCNN.zero_grad()
+          rois, cls_prob, bbox_pred, \
+          rpn_loss_cls, rpn_loss_box, \
+          RCNN_loss_cls, RCNN_loss_bbox, \
+          rois_label,DA_img_loss_cls,DA_ins_loss_cls,tgt_DA_img_loss_cls,tgt_DA_ins_loss_cls,\
+          DA_cst_loss,tgt_DA_cst_loss=\
+              fasterRCNN(im_data, im_info, gt_boxes, num_boxes,need_backprop,
+                         tgt_im_data, tgt_im_info, tgt_gt_boxes, tgt_num_boxes, tgt_need_backprop)
+
+
+
+          loss = rpn_loss_cls.mean() + rpn_loss_box.mean() \
+               + RCNN_loss_cls.mean() + RCNN_loss_bbox.mean()\
+                 +args.lamda*(DA_img_loss_cls.mean()+DA_ins_loss_cls.mean()\
+                 +tgt_DA_img_loss_cls.mean()+tgt_DA_ins_loss_cls.mean()+DA_cst_loss.mean()+tgt_DA_cst_loss.mean())
+          loss_temp += loss.item()
+
+          # backward
+          optimizer.zero_grad()
+          loss.backward()
+          if args.net == "vgg16":
+              clip_gradient(fasterRCNN, 10.)
+          optimizer.step()
+
+          if step % args.disp_interval == 0:
+            end = time.time()
+            if step > 0:
+              loss_temp /= (args.disp_interval + 1)
+
+            if args.mGPUs:
+              loss_rpn_cls = rpn_loss_cls.mean().item()
+              loss_rpn_box = rpn_loss_box.mean().item()
+              loss_rcnn_cls = RCNN_loss_cls.mean().item()
+              loss_rcnn_box = RCNN_loss_bbox.mean().item()
+              fg_cnt = torch.sum(rois_label.data.ne(0))
+              bg_cnt = rois_label.data.numel() - fg_cnt
+            else:
+              loss_rpn_cls = rpn_loss_cls.item()
+              loss_rpn_box = rpn_loss_box.item()
+              loss_rcnn_cls = RCNN_loss_cls.item()
+              loss_rcnn_box = RCNN_loss_bbox.item()
+              loss_DA_img_cls=args.lamda*(DA_img_loss_cls.item()+tgt_DA_img_loss_cls.item())/2
+              loss_DA_ins_cls = args.lamda * (DA_ins_loss_cls.item() + tgt_DA_ins_loss_cls.item()) / 2
+              loss_DA_cst = args.lamda * (DA_cst_loss.item() + tgt_DA_cst_loss.item()) / 2
+              fg_cnt = torch.sum(rois_label.data.ne(0))
+              bg_cnt = rois_label.data.numel() - fg_cnt
+
+            print("[session %d][epoch %2d][iter %4d/%4d] loss: %.4f, lr: %.2e" \
+                                    % (args.session, epoch, step, iters_per_epoch, loss_temp, lr))
+            print("\t\t\tfg/bg=(%d/%d), time cost: %f" % (fg_cnt, bg_cnt, end-start))
+            print("\t\t\trpn_cls: %.4f, rpn_box: %.4f, rcnn_cls: %.4f, rcnn_box %.4f,\n\t\t\timg_loss %.4f,ins_loss %.4f,,cst_loss %.4f" \
+                          % (loss_rpn_cls, loss_rpn_box, loss_rcnn_cls, loss_rcnn_box,loss_DA_img_cls,loss_DA_ins_cls,loss_DA_cst))
+            if args.use_tfboard:
+              info = {
+                'loss': loss_temp,
+                'loss_rpn_cls': loss_rpn_cls,
+                'loss_rpn_box': loss_rpn_box,
+                'loss_rcnn_cls': loss_rcnn_cls,
+                'loss_rcnn_box': loss_rcnn_box
+              }
+              logger.add_scalars("logs_s_{}/losses".format(args.session), info, (epoch - 1) * iters_per_epoch + step)
+
+            loss_temp = 0
+            start = time.time()
+
+        save_name = os.path.join(output_dir, 'ciconv_base_0330_new.pth')
         save_checkpoint({
             'session': args.session,
             'epoch': epoch + 1,
@@ -498,7 +475,33 @@ if __name__ == '__main__':
             'pooling_mode': cfg.POOLING_MODE,
             'class_agnostic': args.class_agnostic,
         }, save_name)
-        print('save model: {}'.format(save_name))
 
-  if args.use_tfboard:
-    logger.close()
+        new_ap = get_ap(save_name)
+        
+        file.write(str(time.time()) + '-epoch:' + str(epoch) + ' map:' + str(new_ap) + '\n')
+
+
+        best_name = os.path.join(output_dir, 'ciconvbasefeat0330_best.pth')
+        if new_ap > max_ap:
+            try:
+                os.remove(best_name)
+            except:
+                pass
+            os.rename(save_name, best_name)
+        else:
+            os.remove(save_name)
+
+        if epoch==args.max_epochs:
+            save_name = os.path.join(output_dir, 'ciconvbasefeat0330_last.pth'.format(args.session, epoch, step))
+            save_checkpoint({
+                'session': args.session,
+                'epoch': epoch + 1,
+                'model': fasterRCNN.module.state_dict() if args.mGPUs else fasterRCNN.state_dict(),
+                'optimizer': optimizer.state_dict(),
+                'pooling_mode': cfg.POOLING_MODE,
+                'class_agnostic': args.class_agnostic,
+            }, save_name)
+            print('save model: {}'.format(save_name))
+
+      if args.use_tfboard:
+        logger.close()
