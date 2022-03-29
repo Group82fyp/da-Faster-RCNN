@@ -35,7 +35,7 @@ except NameError:
     xrange = range  # Python 3
 
 def get_ap(model):
-
+    print()
 
     net = 'vgg16'
     model_dir = model
@@ -193,6 +193,6 @@ def get_ap(model):
         sys.stdout.flush()
 
 
-    mean_ap = imdb.evaluate_detections(all_boxes, output_dir)
+    mean_ap = imdb.evaluate_detections_(all_boxes, output_dir)
     return mean_ap
 
