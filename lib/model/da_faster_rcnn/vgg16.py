@@ -51,7 +51,7 @@ class vgg16(_fasterRCNN):
             # print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
             for p in self.ciconv_RCNN_base[layer].parameters(): p.requires_grad = True
 
-        for layer in range(1,10):
+        for layer in range(10):
             # print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
             for p in self.RCNN_base[layer].parameters(): p.requires_grad = False
         # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
