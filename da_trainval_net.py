@@ -467,7 +467,7 @@ if __name__ == '__main__':
             loss_temp = 0
             start = time.time()
 
-        save_name = os.path.join(output_dir, 'ciconv1_base_0330_new.pth')
+        save_name = os.path.join(output_dir, 'ciconv2_base_0330_new.pth')
         save_checkpoint({
             'session': args.session,
             'epoch': epoch + 1,
