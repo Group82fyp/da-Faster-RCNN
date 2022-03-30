@@ -40,17 +40,21 @@ class vgg16(_fasterRCNN):
       
     vgg.preprocessing = nn.Sequential(*list(vgg.features._modules.values())[:-1])
     preprocessing = nn.Sequential(CIConv2d('W'),
-                                  nn.Conv2d(4, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False))
+                                  nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False))
     vgg.preprocessing[0] = preprocessing
 
+    self.ciconv_RCNN_base = vgg.preprocessing
+    self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:-1])
 
 
-
-    # not using the last maxpool layer
-    self.RCNN_base = vgg.preprocessing
 
     # Fix the layers before conv3:
     for layer in range(10):
+      # print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
+      for p in self.ciconv_RCNN_base[layer].parameters(): p.requires_grad = True
+
+    for layer in range(1, 10):
+      # print("printing layer: ", layer, ", printing name: ", self.RCNN_base[layer])
       for p in self.RCNN_base[layer].parameters(): p.requires_grad = False
 
     # self.RCNN_base = _RCNN_base(vgg.features, self.classes, self.dout_base_model)
