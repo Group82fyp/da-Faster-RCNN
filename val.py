@@ -194,4 +194,7 @@ def get_ap(model):
 
 
     mean_ap = imdb.evaluate_detections_(all_boxes, output_dir)
+    print(mean_ap)
     return mean_ap
+
+get_ap('/home/jiaxi/da-Faster-RCNN/trained_model/vgg16/cityscape/ciconv1_base_0330_new.pth')
