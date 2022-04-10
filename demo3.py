@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     test_folder1 = '/home/jiaxi/da-Faster-RCNN/results'
     untest_folder = '/home/jiaxi/da-Faster-RCNN/cityscape/VOC2007/test'
-    test_folder = untest_folder
+    test_folder = test_folder1
     output_folder = outpath
     net = parsingNet(pretrained = False, backbone='18' ,cls_dim = (griding_num+1,cls_num_per_lane,4),
                     use_aux=False).cuda() # we dont need auxiliary segmentation in testing
