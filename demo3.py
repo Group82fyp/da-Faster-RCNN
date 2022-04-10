@@ -9,7 +9,7 @@ import numpy as np
 import torchvision.transforms as transforms
 from data.dataset import LaneTestDataset
 from data.constant import culane_row_anchor, tusimple_row_anchor
-
+from datetime import datetime
 import os
 
 from tqdm import tqdm
@@ -17,16 +17,27 @@ from tqdm import tqdm
 griding_num = 200
 cls_num_per_lane = 18
 row_anchor = culane_row_anchor
+from datetime import datetime
 
+now = datetime.now()
+
+current_time = now.strftime("%H:%M:%S")
 
 
 if __name__ == "__main__":
+
+
+    now = datetime.now()
+
+    current_time = now.strftime("%H:%M:%S")
+    outpath = os.path.join("/home/jiaxi/da-Faster-RCNN/", str(current_time) + "-results")
+    os.mkdir(outpath)
     torch.backends.cudnn.benchmark = True
 
     dist_print('start testing...')
 
     test_folder = '/home/jiaxi/da-Faster-RCNN/results'
-    output_folder = '/home/jiaxi/da-Faster-RCNN/resultsdir'
+    output_folder = outpath
     net = parsingNet(pretrained = False, backbone='18' ,cls_dim = (griding_num+1,cls_num_per_lane,4),
                     use_aux=False).cuda() # we dont need auxiliary segmentation in testing
 
