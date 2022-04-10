@@ -64,6 +64,7 @@ if __name__ == "__main__":
 
     for img in tqdm(list_files):
         img_name = img
+        image = img
         test_img = os.path.join(test_folder,img)
         frame = cv2.imread(test_img)
 
