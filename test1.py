@@ -201,11 +201,11 @@ if __name__ == '__main__':
 
     cfg.TRAIN.USE_FLIPPED = False
 
-    if args.par t= ='test_s':
+    if args.part=='test_s':
         imdb, roidb, ratio_list, ratio_index = combined_roidb(args.s_imdbtest_name, False)
-    elif args.par t= ='test_t':
+    elif args.part=='test_t':
         imdb, roidb, ratio_list, ratio_index = combined_roidb(args.t_imdbtest_name, False)
-    elif args.par t= ='test_all':
+    elif args.part=='test_all':
         imdb, roidb, ratio_list, ratio_index = combined_roidb(args.all_imdbtest_name, False)
     else:
         print("don't have the test part !")
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     # load_name = os.path.join(input_dir,
     #   'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
 
-    load_nam e =args.model_dir
+    load_name =args.model_dir
 
     # initilize the network here.
     if args.net == 'vgg16':
@@ -283,7 +283,7 @@ if __name__ == '__main__':
     else:
         thresh = 0.0
 
-    save_name = args.par t +'_faster_rcnn_10'
+    save_name = args.part +'_faster_rcnn_10'
     num_images = len(imdb.image_index)
     all_boxes = [[[] for _ in xrange(num_images)]
                  for _ in xrange(imdb.num_classes)]
