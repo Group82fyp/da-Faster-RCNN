@@ -101,6 +101,9 @@ lr = cfg.TRAIN.LEARNING_RATE
 momentum = cfg.TRAIN.MOMENTUM
 weight_decay = cfg.TRAIN.WEIGHT_DECAY
 
+griding_num = 200
+cls_num_per_lane = 18
+
 def getlanes(frame):
     img_h, img_w = frame.shape[0], frame.shape[1]
     img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -125,6 +128,7 @@ def getlanes(frame):
     return out_j
 
 if __name__ == '__main__':
+
   lane_net = parsingNet(pretrained=False, backbone='18', cls_dim=(griding_num + 1, cls_num_per_lane, 4), use_aux=False).cuda()
   state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
   compatible_state_dict = {}
