@@ -9,11 +9,12 @@ import numpy as np
 import torchvision.transforms as transforms
 from data.dataset import LaneTestDataset
 from data.constant import culane_row_anchor, tusimple_row_anchor
-row_anchor = culane_row_anchor
+
 import os
+import tqdm
 griding_num = 200
 cls_num_per_lane = 18
-
+row_anchor = culane_row_anchor
 
 
 
@@ -23,13 +24,11 @@ if __name__ == "__main__":
     dist_print('start testing...')
 
     test_folder = '/home/jiaxi/da-Faster-RCNN/results'
-    untest_folder = '/home/jiaxi/da-Faster-RCNN/cityscape/VOC2007/test'
-
+    output_folder = '/home/jiaxi/da-Faster-RCNN/resultsdir'
     net = parsingNet(pretrained = False, backbone='18' ,cls_dim = (griding_num+1,cls_num_per_lane,4),
                     use_aux=False).cuda() # we dont need auxiliary segmentation in testing
 
     state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
-    # state_dict = torch.load("ep049.pth", map_location='cpu')['model']
     compatible_state_dict = {}
     for k, v in state_dict.items():
         if 'module.' in k:
@@ -45,10 +44,9 @@ if __name__ == "__main__":
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
     ])
-    list_files = os.listdir(untest_folder)
+    list_files = os.listdir(test_folder)
 
-    print("start testing")
-    for count,img in enumerate(list_files):
+    for img in tqdm(list_files):
         test_img = os.path.join(test_folder,img)
         frame = cv2.imread(test_img)
 
@@ -93,7 +91,7 @@ if __name__ == "__main__":
             colourno = colourno + 1
             if colourno > 4:
                 colourno = 0
-        name = os.join("/home/jiaxi/da-Faster-RCNN/resultsdir/","output" + str(count) + ".png" )
+        name = os.path.join(output_folder, img)
         cv2.imwrite(name, image)
         # cv2.imshow("show", image)
 
