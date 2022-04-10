@@ -29,6 +29,7 @@ from model.faster_rcnn.vgg16 import vgg16
 from model.faster_rcnn.resnet import resnet
 from model.model import parsingNet
 from utils.dist_utils import dist_print
+import torchvision.transforms as transforms
 
 import pdb
 
