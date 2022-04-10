@@ -134,7 +134,7 @@ if __name__ == '__main__':
     torch.backends.cudnn.benchmark = True
     lane_net = parsingNet(pretrained=False, backbone='18', cls_dim=(griding_num + 1, cls_num_per_lane, 4), use_aux=False).cuda()
     # state_dict = torch.load("ep049.pth", map_location='cpu')['model']
-    state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
+    state_dict = torch.load("/home/jiaxi/da-Faster-RCNN/ep049.pth", map_location='cpu')['model']
     compatible_state_dict = {}
 
     for k, v in state_dict.items():
