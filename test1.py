@@ -27,6 +27,8 @@ from model.rpn.bbox_transform import bbox_transform_inv
 from model.utils.net_utils import save_net, load_net, vis_detections
 from model.faster_rcnn.vgg16 import vgg16
 from model.faster_rcnn.resnet import resnet
+from model.model import parsingNet
+from utils.dist_utils import dist_print
 
 import pdb
 
@@ -99,10 +101,50 @@ lr = cfg.TRAIN.LEARNING_RATE
 momentum = cfg.TRAIN.MOMENTUM
 weight_decay = cfg.TRAIN.WEIGHT_DECAY
 
+def getlanes(frame):
+    img_h, img_w = frame.shape[0], frame.shape[1]
+    img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(img)
+    img = img_transforms(img)
+    img = img.unsqueeze(0)
+
+    imgs = img.cuda()
+    with torch.no_grad():
+        out = net(imgs)
+
+    out_j = out[0].data.cpu().numpy()
+    out_j = out_j[:, ::-1, :]
+    prob = scipy.special.softmax(out_j[:-1, :, :], axis=0)
+    idx = np.arange(griding_num) + 1
+    idx = idx.reshape(-1, 1, 1)
+    loc = np.sum(prob * idx, axis=0)
+    out_j = np.argmax(out_j, axis=0)
+    loc[out_j == griding_num] = 0
+    out_j = loc
+
+    return out_j
+
 if __name__ == '__main__':
+  lane_net = parsingNet(pretrained=False, backbone='18', cls_dim=(griding_num + 1, cls_num_per_lane, 4), use_aux=False).cuda()
+  state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
+  compatible_state_dict = {}
+
+  for k, v in state_dict.items():
+      if 'module.' in k:
+          compatible_state_dict[k[7:]] = v
+      else:
+          compatible_state_dict[k] = v
+  lane_net.load_state_dict(compatible_state_dict, strict=False)
+  lane_net.eval()
+
+  img_transforms = transforms.Compose([
+      transforms.Resize((288, 800)),
+      transforms.ToTensor(),
+      transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+  ])
 
   args = parse_args()
-
+  torch.backends.cudnn.benchmark = True
   print('Called with args:')
   print(args)
 
@@ -291,7 +333,7 @@ if __name__ == '__main__':
       misc_tic = time.time()
       if vis:
           im = cv2.imread(imdb.image_path_at(i))
-
+          getlanes(im)
           im2show = np.copy(im)
       for j in xrange(1, imdb.num_classes):
           inds = torch.nonzero(scores[:,j]>thresh).view(-1)
@@ -333,6 +375,21 @@ if __name__ == '__main__':
       sys.stdout.flush()
 
       if vis:
+          colourno = 0
+          for i in range(out_j.shape[1]):
+              colour = [(0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 255)]
+
+              if np.sum(out_j[:, i] != 0) > 2:
+                  for k in range(out_j.shape[0]):
+                      if out_j[k, i] > 0:
+                          ppp = (int(out_j[k, i] * col_sample_w * img_w / 800) - 1,
+                                 int(img_h * (row_anchor[cls_num_per_lane - 1 - k] / 288)) - 1)
+                          # print("ppp:")
+                          # print(ppp)
+                          im2show = cv2.circle(im2show, ppp, 5, colour[colourno], -1)
+              colourno = colourno + 1
+              if colourno > 4:
+                  colourno = 0
           cv2.imwrite('result.png', im2show)
           pdb.set_trace()
           #cv2.imshow('test', im2show)
