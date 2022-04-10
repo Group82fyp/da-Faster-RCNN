@@ -23,6 +23,7 @@ if __name__ == "__main__":
     dist_print('start testing...')
 
     test_folder = '/home/jiaxi/da-Faster-RCNN/results'
+    untest_folder = '/home/jiaxi/da-Faster-RCNN/cityscape/VOC2007/test'
 
     net = parsingNet(pretrained = False, backbone='18' ,cls_dim = (griding_num+1,cls_num_per_lane,4),
                     use_aux=False).cuda() # we dont need auxiliary segmentation in testing
@@ -44,8 +45,9 @@ if __name__ == "__main__":
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
     ])
-    list_files = os.listdir(test_folder)
+    list_files = os.listdir(untest_folder)
 
+    print("start testing")
     for count,img in enumerate(list_files):
         test_img = os.path.join(test_folder,img)
         frame = cv2.imread(test_img)
@@ -91,7 +93,8 @@ if __name__ == "__main__":
             colourno = colourno + 1
             if colourno > 4:
                 colourno = 0
-        cv2.imwrite("output" + str(count) + ".png", image)
+        name = os.join("/home/jiaxi/da-Faster-RCNN/resultsdir/","output" + str(count) + ".png" )
+        cv2.imwrite(name, image)
         # cv2.imshow("show", image)
 
 
