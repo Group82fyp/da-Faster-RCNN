@@ -133,7 +133,8 @@ def getlanes(frame):
 if __name__ == '__main__':
 
     lane_net = parsingNet(pretrained=False, backbone='18', cls_dim=(griding_num + 1, cls_num_per_lane, 4), use_aux=False).cuda()
-    state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
+    state_dict = torch.load("ep049.pth", map_location='cpu')['model']
+    # state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
     compatible_state_dict = {}
 
     for k, v in state_dict.items():
@@ -167,7 +168,7 @@ if __name__ == '__main__':
         print('loading our dataset...........')
         args.s_imdb_name = "cityscape_2007_train_s"
         args.t_imdb_name = "cityscape_2007_train_t"
-        args.s_imdbtest_nam e ="cityscape_2007_test_s"
+        args.s_imdbtest_name ="cityscape_2007_test_s"
         args.t_imdbtest_name = "cityscape_2007_test_t"
         args.all_imdbtest_name = "cityscape_2007_test_all"
         args.set_cfgs = ['ANCHOR_SCALES', '[4,8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'MAX_NUM_GT_BOXES', '50']
