@@ -30,6 +30,9 @@ from model.faster_rcnn.resnet import resnet
 from model.model import parsingNet
 from utils.dist_utils import dist_print
 import torchvision.transforms as transforms
+from data.dataset import LaneTestDataset
+from data.constant import culane_row_anchor, tusimple_row_anchor
+row_anchor = culane_row_anchor
 
 import pdb
 
