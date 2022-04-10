@@ -91,7 +91,7 @@ if __name__ == "__main__":
             colourno = colourno + 1
             if colourno > 4:
                 colourno = 0
-        cv2.imwrite("output" + count+ ".png", image)
+        cv2.imwrite("output" + str(count) + ".png", image)
         # cv2.imshow("show", image)
 
 
