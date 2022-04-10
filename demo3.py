@@ -49,6 +49,7 @@ if __name__ == "__main__":
     list_files = os.listdir(test_folder)
 
     for img in tqdm(list_files):
+        img_name = img
         test_img = os.path.join(test_folder,img)
         frame = cv2.imread(test_img)
 
@@ -93,7 +94,7 @@ if __name__ == "__main__":
             colourno = colourno + 1
             if colourno > 4:
                 colourno = 0
-        name = os.path.join(output_folder, img)
+        name = os.path.join(output_folder, img_name)
         cv2.imwrite(name, image)
         # cv2.imshow("show", image)
 
