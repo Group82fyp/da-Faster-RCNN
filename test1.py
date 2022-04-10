@@ -225,10 +225,17 @@ if __name__ == '__main__':
   load_name=args.model_dir
 
   # initilize the network here.
-  fasterRCNN = vgg16(imdb.classes, pretrained=False, class_agnostic=args.class_agnostic)
-
-  print("network is not defined")
-  pdb.set_trace()
+  if args.net == 'vgg16':
+      fasterRCNN = vgg16(imdb.classes, pretrained=False, class_agnostic=args.class_agnostic)
+  elif args.net == 'res101':
+      fasterRCNN = resnet(imdb.classes, 101, pretrained=False, class_agnostic=args.class_agnostic)
+  elif args.net == 'res50':
+      fasterRCNN = resnet(imdb.classes, 50, pretrained=False, class_agnostic=args.class_agnostic)
+  elif args.net == 'res152':
+      fasterRCNN = resnet(imdb.classes, 152, pretrained=False, class_agnostic=args.class_agnostic)
+  else:
+      print("network is not defined")
+      pdb.set_trace()
 
   fasterRCNN.create_architecture()
 
