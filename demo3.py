@@ -27,8 +27,8 @@ if __name__ == "__main__":
     net = parsingNet(pretrained = False, backbone='18' ,cls_dim = (griding_num+1,cls_num_per_lane,4),
                     use_aux=False).cuda() # we dont need auxiliary segmentation in testing
 
-    # state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
-    state_dict = torch.load("ep049.pth", map_location='cpu')['model']
+    state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
+    # state_dict = torch.load("ep049.pth", map_location='cpu')['model']
     compatible_state_dict = {}
     for k, v in state_dict.items():
         if 'module.' in k:
