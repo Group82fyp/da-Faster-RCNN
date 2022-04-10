@@ -11,7 +11,9 @@ from data.dataset import LaneTestDataset
 from data.constant import culane_row_anchor, tusimple_row_anchor
 
 import os
-import tqdm
+
+from tqdm import tqdm
+
 griding_num = 200
 cls_num_per_lane = 18
 row_anchor = culane_row_anchor
