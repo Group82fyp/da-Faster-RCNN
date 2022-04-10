@@ -27,7 +27,8 @@ if __name__ == "__main__":
     net = parsingNet(pretrained = False, backbone='18' ,cls_dim = (griding_num+1,cls_num_per_lane,4),
                     use_aux=False).cuda() # we dont need auxiliary segmentation in testing
 
-    state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
+    # state_dict = torch.load("culane_18.pth", map_location='cpu')['model']
+    state_dict = torch.load("ep049.pth", map_location='cpu')['model']
     compatible_state_dict = {}
     for k, v in state_dict.items():
         if 'module.' in k:
@@ -45,12 +46,11 @@ if __name__ == "__main__":
     ])
     list_files = os.listdir(test_folder)
 
-    for img in list_files:
+    for count,img in enumerate(list_files):
         test_img = os.path.join(test_folder,img)
         frame = cv2.imread(test_img)
 
         img_h, img_w= frame.shape[0], frame.shape[1]
-        print(img_h, img_w)
         # frame = cv2.resize(frame, (288, 800))
         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img)
@@ -91,7 +91,7 @@ if __name__ == "__main__":
             colourno = colourno + 1
             if colourno > 4:
                 colourno = 0
-        cv2.imwrite("output.png", image)
+        cv2.imwrite("output" + count+ ".png", image)
         # cv2.imshow("show", image)
 
 
